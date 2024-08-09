@@ -15,7 +15,7 @@
 import functools
 import requests
 from typing import List
-from telethon.tl.types import Message
+from hikkatl.tl.types import Message
 
 from .. import loader, utils
 
