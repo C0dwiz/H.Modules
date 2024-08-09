@@ -103,7 +103,6 @@ class VirusTotalMod(loader.Module):
                         headers = {"x-apikey": token}
                         params = {"apikey": token}
 
-                        # Отправляем файл на сканирование
                         with open(file_path, "rb") as file:
                             files = {"file": file}
                             async with session.post(
@@ -116,7 +115,6 @@ class VirusTotalMod(loader.Module):
                                     result = await response.json()
                                     data_id = result["data"]["id"]
 
-                                    # Получаем отчет о сканировании
                                     async with session.get(
                                         f"https://www.virustotal.com/api/v3/analyses/{data_id}",
                                         headers=headers,

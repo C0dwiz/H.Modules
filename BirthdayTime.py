@@ -44,6 +44,7 @@ class DaysToMyBirthday(loader.Module):
             "There are {} days, {} hours, {} minutes, and {} seconds left until your birthday. \n<emoji document_id=5377442914521588226>"
             "💙</emoji> {}</b>"
         ),
+        "conf": "<i>Open config...</i>",
     }
 
     strings_ru = {
@@ -54,13 +55,19 @@ class DaysToMyBirthday(loader.Module):
             "минут, {} секунд. \n<emoji document_id=5377442914521588226>"
             "💙</emoji> {}</b>"
         ),
+        "conf": "<i>Открываю конфиг...</i>",
+        "btname_yes": (
+            "<b><emoji document_id=6327560044845991305>😶</emoji> Хорошо, теперь я "
+            "буду изменять ваше имя в зависимости от количества дней до дня рождения</b>"
+        ),
+        "btname_no": "<emoji document_id=6325696222313055607>😶</emoji>Хорошо, я больше не буду изменять ваше имя",
     }
 
     def __init__(self):
         self.config = loader.ModuleConfig(
             loader.ConfigValue(
                 "birthday_date",
-                None,
+                str(None),
                 lambda: "Дата вашего рождения. Указывать в формате ДД.ММ. Пример: 17.06",
             )
         )
@@ -70,27 +77,31 @@ class DaysToMyBirthday(loader.Module):
 
     async def checker(self):
         while True:
-            if self.db.get(__name__, "change_name") is False:
+            if not self.db.get(__name__, "change_name"):
                 return
+
             now = datetime.now()
             brth = f"{self.config['birthday_date']}"
             day, month = brth.split(".")
             birthday = datetime(now.year, int(month), int(day))
 
             if now.month > int(month) or (
-                now.month == int(month) and now.day > int(day)
+                now.month == int(month) and now.day >= int(day)
             ):
                 birthday = datetime(now.year + 1, int(month), int(day))
 
             time_to_birthday = abs(birthday - now)
             days = time_to_birthday.days
+
             user = await self.client(GetFullUserRequest(self.client.hikka_me.id))
             name = user.users[0].last_name
-            if name == f'{self.db.get(__name__, "last_name")} • {days} d.':
+
+            ln = f'{self.db.get(__name__, "last_name")} • {days} d.'
+            if name == ln:
                 return
             else:
-                ln = f'{self.db.get(__name__, "last_name")} • {days} d.'
-                await message.client(UpdateProfileRequest(last_name=ln))
+                await self.client(UpdateProfileRequest(last_name=ln))
+
             await asyncio.sleep(60)
 
     @loader.command()
@@ -104,8 +115,7 @@ class DaysToMyBirthday(loader.Module):
         if self.db.get(__name__, "change_name"):
             self.db.set(__name__, "change_name", False)
             await utils.answer(
-                message,
-                "<emoji document_id=6325696222313055607>😶</emoji>Хорошо, я больше не буду изменять ваше имя",
+                message, self.strings("btname_no")
             )
             await message.client(
                 UpdateProfileRequest(last_name=self.db.get(__name__, "last_name"))
@@ -114,11 +124,7 @@ class DaysToMyBirthday(loader.Module):
         else:
             self.db.set(__name__, "change_name", True)
             await utils.answer(
-                message,
-                (
-                    "<b><emoji document_id=6327560044845991305>😶</emoji> Хорошо, теперь я "
-                    "буду изменять ваше имя в зависимости от количества дней до дня рождения</b>"
-                ),
+                message, self.strings("btname_yes")
             )
 
     @loader.command()
@@ -127,9 +133,7 @@ class DaysToMyBirthday(loader.Module):
 
         if self.config["birthday_date"] is None:
             await utils.answer(message, self.strings("date_error"))
-            msg = await self.client.send_message(
-                message.chat_id, "<i>Открываю конфиг...</i>"
-            )
+            msg = await self.client.send_message(message.chat_id, self.strings("conf"))
             await self.allmodules.commands["config"](
                 await utils.answer(msg, f"{self.get_prefix()}config BirthdayTime")
             )

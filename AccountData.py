@@ -1,3 +1,16 @@
+# ---------------------------------------------------------------------------------
+# Name: AccountData
+# Description: Find out the approximate date of registration of the telegram account
+# Author: @hikka_mods
+# ---------------------------------------------------------------------------------
+# 🔒    Licensed under the GNU AGPLv3
+# 🌐 https://www.gnu.org/licenses/agpl-3.0.html
+
+# meta developer: @hikka_mods
+# scope: Api AccountData
+# scope: Api AccountData 0.0.1
+# ---------------------------------------------------------------------------------
+
 import requests
 from hikkatl.types import Message
 from .. import loader, utils
@@ -25,7 +38,7 @@ class AccountData(loader.Module):
     """Find out the approximate date of registration of the telegram account"""
 
     strings = {
-        "name": "AccountData", 
+        "name": "AccountData",
         "date_text": "🕰 Date of registration of this account: {data}",
         "date_text_ps": "P.S. The registration date is approximate, as it is almost impossible to know for sure",
         "no_reply": "⚠️ You did not reply to the user's message",
@@ -43,6 +56,9 @@ class AccountData(loader.Module):
         reply = await message.get_reply_message()
         if reply:
             data = get_creation_date(reply.from_id)
-            await utils.answer(message, f"{self.strings('date_text').format(data=data)}\n\n{self.strings('date_text_ps')}")
+            await utils.answer(
+                message,
+                f"{self.strings('date_text').format(data=data)}\n\n{self.strings('date_text_ps')}",
+            )
         else:
             await utils.answer(message, self.strings("no_reply"))

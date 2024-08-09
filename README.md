@@ -1,5 +1,5 @@
 <div align='center'>
-  <img src="/assets/Vector.png" alt="hikka_mods">
+  <img src="https://github.com/Codwizer/ReModules/blob/main/assets/Vector.png" alt="hikka_mods">
 </div>
 
 ## ❔ Information
@@ -12,12 +12,12 @@
 
 ## 🆕 Instruction manuals
 
-<pre><code>.dlm https://raw.githubusercontent.com/Codwizer/ReModules/main/{name_modules}.py</code></pre>
+<pre><code>.dlm https://raw.githubusercontent.com/C0dwiz/H.Modules/main/{name_modules}.py</code></pre>
 <hr>
 
 ### Installing they repository
 > Install the repository
-<pre><code>.addrepo https://github.com/Codwizer/ReModules/raw/main</code></pre>
+<pre><code>.addrepo https://github.com/C0dwiz/H.Modules/raw/main</code></pre>
 > Installing the module
 <pre><code>.dlm {name_modules}</code></pre>
 

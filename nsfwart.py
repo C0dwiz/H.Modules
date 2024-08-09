@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------------------------
 # Name: NSFWArt
-# Description: Sends cute anime loli-art
+# Description: Sends cute anime nsfw-art
 # Author: @hikka_mods
 # ---------------------------------------------------------------------------------
 
@@ -12,13 +12,13 @@
 # scope: Api NSFWArt 0.0.1
 # ---------------------------------------------------------------------------------
 
-import asyncio
 import functools
 import requests
-from typing import List, Union
+from typing import List
 from telethon.tl.types import Message
 
 from .. import loader, utils
+
 
 async def photos(tags: str, subreddit: str, quantity: int) -> List[str]:
     ans = (
@@ -41,9 +41,10 @@ async def photos(tags: str, subreddit: str, quantity: int) -> List[str]:
 
     return [ans["data"][0]["urls"]["original"]]
 
+
 @loader.tds
 class NSFWArtMod(loader.Module):
-    """Sends cute anime loli-art"""
+    """Sends cute anime nsfw-art"""
 
     strings = {
         "name": "NSFWArt",
@@ -62,7 +63,7 @@ class NSFWArtMod(loader.Module):
     async def nsfwartcmd(self, message: Message):
         """- send cute nsfw-art"""
 
-        tags = self.config['tags']
+        tags = self.config["tags"]
         subreddit = f"/v2?tag={tags}"
 
         ans = await utils.run_sync(
@@ -74,7 +75,8 @@ class NSFWArtMod(loader.Module):
 
         await self.inline.gallery(
             message=message,
-            next_handler=functools.partial(photos, tags, subreddit=subreddit, quantity=15),
+            next_handler=functools.partial(
+                photos, tags, subreddit=subreddit, quantity=15
+            ),
             caption=f"<i>{utils.ascii_face()}</i>",
         )
-
