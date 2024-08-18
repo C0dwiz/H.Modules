@@ -11,6 +11,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
       - name: Update full.txt
         run: |
-          python -c "import glob; modules = glob.glob('*.py'); mods = '\n'.join(modules).replace('.py',''); with open('full.txt', 'w') as f: f.write(mods)"
+          python -c "import glob; modules = glob.glob('*.py'); mods = '\n'.join(modules); with open('full.txt', 'w') as f: f.write(mods)"
