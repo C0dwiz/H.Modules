@@ -1,0 +1,16 @@
+name: Update full.txt
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-full-txt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Update full.txt
+        run: |
+          python -c "import glob; modules = glob.glob('*.py'); mods = '\n'.join(modules).replace('.py',''); with open('full.txt', 'w') as f: f.write(mods)"
