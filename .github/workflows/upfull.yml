@@ -14,7 +14,15 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: '3.12.4'
+      - name: Install glob
+        run: pip install -q glob
       - name: Update full.txt
         run: |
-          python -c "import glob; modules = glob.glob('*.py'); mods = '\n'.join(modules); with open('full.txt', 'w') as f: f.write(mods)" 
+          python -u - <<EOF
+          import glob
+          modules = glob.glob('*.py')
+          mods = '\n'.join(modules)
+          with open('full.txt', 'w') as f:
+              f.write(mods)
+          EOF
