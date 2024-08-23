@@ -45,8 +45,11 @@ class ProfileEditorMod(loader.Module):
         "error_occupied": "Новое имя пользователя уже занято!",
     }
 
+    @loader.command(
+        ru_doc="для того, чтобы сменить свое имя/отчество",
+        en_doc="for change your first/second name",
+    )
     async def namecmd(self, message):
-        """- for change your first/second name."""
         args = utils.get_args_raw(message).split("/")
 
         if len(args) == 0:
@@ -62,14 +65,21 @@ class ProfileEditorMod(loader.Module):
         )
         await utils.answer(message, self.strings("done_name"))
 
+    @loader.command(
+        ru_doc="чтобы изменить свою биографию",
+        en_doc="for change your bio",
+    )
     async def aboutcmd(self, message):
-        """- for change your bio."""
         args = utils.get_args_raw(message)
         if not args:
             return await utils.answer(message, self.strings("error_format"))
         await message.client(UpdateProfileRequest(about=args))
         await utils.answer(message, self.strings("done_bio"))
 
+    @loader.command(
+        ru_doc="для изменения вашего имени пользователя. Введите значение без '@'",
+        en_doc="for change your username. Enter value without '@'",
+    )
     async def usercmd(self, message):
         """- for change your username. Enter value without "@"."""
         args = utils.get_args_raw(message)

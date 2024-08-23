@@ -38,8 +38,11 @@ class TikTokDownloaderMod(loader.Module):
         "error": "<emoji document_id=5465665476971471368>❌</emoji> Ошибка при скачивании видео: {str(e)}",
     }
 
+    @loader.command(
+        ru_doc="Скачивает видео с TikTok по ссылке",
+        en_doc="Downloads videos from TikTok via the link",
+    )
     async def ttdlcmd(self, message):
-        """Скачивает видео с TikTok по ссылке"""
         args = utils.get_args_raw(message)
         if not args:
             await utils.answer(message, self.strings("args_no"))

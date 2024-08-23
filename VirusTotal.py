@@ -12,7 +12,9 @@
 # requires: json aiohttp tempfile
 # ---------------------------------------------------------------------------------
 
-import os, json, aiohttp, tempfile
+import os
+import aiohttp
+import tempfile
 from .. import loader, utils
 from hikkatl.tl.types import Message
 
@@ -37,6 +39,7 @@ class VirusTotalMod(loader.Module):
         "no_apikey": (
             "<emoji document_id=5260342697075416641>🚫</emoji> You have not specified an API Key"
         ),
+        "confing": "Нужен токен с www.virustotal.com/gui/my-apikey",
     }
 
     strings_ru = {
@@ -52,6 +55,7 @@ class VirusTotalMod(loader.Module):
         "no_apikey": (
             "<emoji document_id=5260342697075416641>🚫</emoji> Вы не указали Api Key"
         ),
+        "confing": "Need a token with www.virustotal.com/gui/my-apikey",
     }
 
     def __init__(self):
@@ -64,9 +68,11 @@ class VirusTotalMod(loader.Module):
             )
         )
 
-    @loader.command()
+    @loader.command(
+        ru_doc="<ответ на файл> - Проверяет файлы на наличие вирусов с использованием VirusTotal",
+        en_doc="<file response> - Checks files for viruses using VirusTotal",
+    )
     async def vt(self, message: Message):
-        """<ответ на файл> - Проверяет файлы на наличие вирусов с использованием VirusTotal"""
         if not message.is_reply:
             await utils.answer(message, self.strings("no_reply"))
             return

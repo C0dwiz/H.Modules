@@ -7,7 +7,7 @@
 <i>Modules for [Hikka](https://github.com/hikariatama/Hikka)</i>
 
 ## 💬 Telegram
--> [Channel](https://t.me/hikka_mods)
+-> [Channel](https://t.me/hikka_mods)\
 -> [Chat](https://t.me/hikka_mods_chat)
 
 ## 🆕 Instruction manuals

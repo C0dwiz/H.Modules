@@ -38,9 +38,11 @@ class Kittens(loader.Module):
         "search": "<emoji document_id=5328311576736833844>🔴</emoji> Ищем милых котят..",
     }
 
-    @loader.command()
-    async def kitcmd(self, message: Message):
-        """-> to get a cute kitty"""
+    @loader.command(
+        ru_doc="Чтобы завести милую кошечку",
+        en_doc="To get a cute kitty",
+    )
+    async def kit(self, message: Message):
         await message.edit(self.strings("search"))
         time.sleep(1)
         chat = "mods_kitten"

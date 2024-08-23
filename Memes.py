@@ -61,6 +61,10 @@ class MemesMod(loader.Module):
         "dell": "❌ Закрыть",
     }
 
+    @loader.command(
+        ru_doc="",
+        en_doc="",
+    )
     async def memescmd(self, message: Message):
         img = await get_random_image()
         await self.inline.form(

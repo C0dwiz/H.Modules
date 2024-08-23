@@ -45,9 +45,11 @@ class Text2File(loader.Module):
         "cfg_name": "Вы можете выбрать расширение и название для файла",
     }
 
-    @loader.command()
+    @loader.command(
+        ru_doc="Создать файл с вашим текстом или кодом",
+        en_doc="Create a file with your text or code",
+    )
     async def ttfcmd(self, message: Message):
-        """-> to create a file with your text or code"""
         args = utils.get_args_raw(message)
         if not args:
             await utils.answer(message, self.strings("no_args"))

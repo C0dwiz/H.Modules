@@ -60,9 +60,11 @@ class NSFWArtMod(loader.Module):
             )
         )
 
+    @loader.command(
+        ru_doc="Отправьте симпатичный nsfw-арт",
+        en_doc="Send cute nsfw-art",
+    )
     async def nsfwartcmd(self, message: Message):
-        """- send cute nsfw-art"""
-
         tags = self.config["tags"]
         subreddit = f"/v2?tag={tags}"
 

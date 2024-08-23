@@ -36,8 +36,11 @@ class ArticleMod(loader.Module):
         "article": "<emoji document_id=5226512880362332956>📖</emoji> <b>Твоя статья УК РФ</b>:\n\n<blockquote>Номер {}\n\n{}</blockquote>",
     }
 
+    @loader.command(
+        ru_doc="Отображается ваша статья Уголовного кодекса Российской Федерации",
+        en_doc="Displays your article Criminal Code of the Russian Federation",
+    )
     async def arccmd(self, message: Message):
-        """Displays your article Criminal Code of the Russian Federation"""
         values = self._load_values()
         if values:
             random_key = random.choice(list(values.keys()))

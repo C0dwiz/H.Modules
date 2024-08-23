@@ -40,48 +40,66 @@ class Search(loader.Module):
         "close": "❌ Закрыть",
     }
 
-    async def googlecmd(self, message: Message):
-        """поискать в Google"""
+    @loader.command(
+        ru_doc="Поискать в Google",
+        en_doc="Search on Google",
+    )
+    async def google(self, message: Message):
         g = utils.get_args_raw(message)
         google = f"https://google.com/search?q={g}"
         await utils.answer(
             message, self.strings("search") + f'<a href="{google}">Ссылка</a>'
         )
 
-    async def yandexcmd(self, message: Message):
-        """поискать в Yandex"""
+    @loader.command(
+        ru_doc="Поискать в Yandex",
+        en_doc="Search on Yandex",
+    )
+    async def yandex(self, message: Message):
         y = utils.get_args_raw(message)
         yandex = f"https://yandex.ru/?q={y}"
         await utils.answer(
             message, self.strings("search") + f'<a href="{yandex}">Ссылка</a>'
         )
 
-    async def duckduckgocmd(self, message: Message):
-        """поискать в Duckduckgo"""
+    @loader.command(
+        ru_doc="Поискать в Duckduckgo",
+        en_doc="Search on Duckduckgo",
+    )
+    async def duckduckgo(self, message: Message):
         d = utils.get_args_raw(message)
         duckduckgo = f"https://duckduckgo.com/?q={d}"
         await utils.answer(
             message, self.strings("search") + f'<a href="{duckduckgo}">Ссылка</a>'
         )
 
-    async def bingcmd(self, message: Message):
-        """поискать в Bing"""
+    @loader.command(
+        ru_doc="Поискать в Bing",
+        en_doc="Search on Bing",
+    )
+    async def bing(self, message: Message):
         b = utils.get_args_raw(message)
         bing = f"https://bing.com/?q={b}"
         await utils.answer(
             message, self.strings("search") + f'<a href="{bing}">Ссылка</a>'
         )
 
-    async def youcmd(self, message: Message):
-        """поискать в You"""
+    @loader.command(
+        ru_doc="Поискать в You",
+        en_doc="Search on You",
+    )
+    async def you(self, message: Message):
         y = utils.get_args_raw(message)
         you = f"https://you.com/?q={y}"
         await utils.answer(
             message, self.strings("search") + f'<a href="{you}">Ссылка</a>'
         )
 
-    async def igooglecmd(self, message: Message):
-        """поискать в Google инлайн"""
+    @loader.command(
+        ru_doc="Поискать в Google инлайн",
+        en_doc="Search on Google inline",
+    )
+    async def igoogle(self, message: Message):
         g = utils.get_args_raw(message)
         google = f"https://google.com/search?q={g}"
         await self.inline.form(
@@ -99,8 +117,11 @@ class Search(loader.Module):
             silent=True,
         )
 
-    async def iyandexcmd(self, message: Message):
-        """поискать в Yandex инлайн"""
+    @loader.command(
+        ru_doc="Поискать в Yandex инлайн",
+        en_doc="Search on Yandex inline",
+    )
+    async def iyandex(self, message: Message):
         y = utils.get_args_raw(message)
         yandex = f"https://yandex.ru/?q={y}"
         await self.inline.form(
@@ -118,8 +139,11 @@ class Search(loader.Module):
             silent=True,
         )
 
-    async def iduckduckgocmd(self, message: Message):
-        """поискать в Duckduckgo инлайн"""
+    @loader.command(
+        ru_doc="Поискать в Duckduckgo инлайн",
+        en_doc="Search on Duckduckgo inline",
+    )
+    async def iduckduckgo(self, message: Message):
         d = utils.get_args_raw(message)
         duckduckgo = f"https://duckduckgo.com/?q={d}"
         await self.inline.form(
@@ -137,8 +161,11 @@ class Search(loader.Module):
             silent=True,
         )
 
-    async def ibingcmd(self, message: Message):
-        """поискать в Bing инлайн"""
+    @loader.command(
+        ru_doc="Поискать в Bing инлайн",
+        en_doc="Search on Bing inline",
+    )
+    async def ibing(self, message: Message):
         b = utils.get_args_raw(message)
         bing = f"https://bing.com/?q={b}"
         await self.inline.form(
@@ -156,8 +183,11 @@ class Search(loader.Module):
             silent=True,
         )
 
-    async def iyoucmd(self, message: Message):
-        """поискать в You инлайн"""
+    @loader.command(
+        ru_doc="Поискать в You инлайн",
+        en_doc="Search on You inline",
+    )
+    async def iyou(self, message: Message):
         y = utils.get_args_raw(message)
         you = f"https://you.com/?q={y}"
         await self.inline.form(

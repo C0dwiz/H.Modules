@@ -41,8 +41,11 @@ class MusicMod(loader.Module):
         "error": "<emoji document_id=5228947933545635555>😫</emoji> <b>Я не смог найти трек с названием <code>{}</code><b>",
     }
 
+    @loader.command(
+        ru_doc="Найти трек по названию из Yandex music",
+        en_doc="Find a track by name from Yandex music",
+    )
     async def ymcmd(self, message):
-        """- найти трек по названию из Yandex music"""
         args = utils.get_args_raw(message)
         r = await message.get_reply_message()
         bot = "@Yandex_music_download_bot"
@@ -71,8 +74,11 @@ class MusicMod(loader.Module):
                 message.chat_id, self.strings("error").format(args=args)
             )
 
+    @loader.command(
+        ru_doc="Найти трек по названию из VK",
+        en_doc="Find a track by name from VK",
+    )
     async def vkmcmd(self, message):
-        """- найти трек по названию из VK"""
         args = utils.get_args_raw(message)
         r = await message.get_reply_message()
         bot = "@vkmusic_bot"

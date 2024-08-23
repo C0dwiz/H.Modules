@@ -46,8 +46,11 @@ class Shortener(loader.Module):
             )
         )
 
+    @loader.command(
+        ru_doc="Сократить ссылку через bit.ly",
+        en_doc="Shorten the link via bit.ly",
+    )
     async def shortencmd(self, message: Message):
-        """сократить ссылку через bit.ly"""
         if self.config["token"] is None:
             await utils.answer(message, self.strings("no_api"))
             return
@@ -58,8 +61,11 @@ class Shortener(loader.Module):
             message, self.strings("shortencmd").format(c=s.bitly.short(args))
         )
 
+    @loader.command(
+        ru_doc="Посмотреть статистику ссылки через bit.ly",
+        en_doc="View link statistics via bit.ly",
+    )
     async def statclcmd(self, message: Message):
-        """посмотреть статистику ссылки через bit.ly"""
         if self.config["token"] is None:
             await utils.answer(message, self.strings("no_api"))
             return

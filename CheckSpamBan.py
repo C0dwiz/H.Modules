@@ -36,8 +36,11 @@ class SpamBanCheckMod(loader.Module):
         "spamban": "<b>К сожалению ваш аккаунт получил спам-бан...\n\n{kk}\n\n{ll}</b>",
     }
 
+    @loader.command(
+        ru_doc="Проверяет вашу учетную запись на спам-бан с помощью бота @SpamBot",
+        en_doc="Checks your account for spam ban via @SpamBot bot",
+    )
     async def spambancmd(self, message: Message):
-        """- checks your account for spam ban via @SpamBot bot."""
         async with self._client.conversation("@SpamBot") as conv:
             msg = await conv.send_message("/start")
             r = await conv.get_response()

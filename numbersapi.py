@@ -20,7 +20,7 @@ from datetime import datetime
 __version__ = (1, 0, 0)
 
 
-def get_fact_about_number(number, fact_type):
+async def get_fact_about_number(number, fact_type):
     url = f"http://numbersapi.com/{number}/{fact_type}"
     response = requests.get(url)
 
@@ -30,7 +30,7 @@ def get_fact_about_number(number, fact_type):
         return "Извините, не удалось получить факт."
 
 
-def get_fact_about_date(month, day):
+async def get_fact_about_date(month, day):
     date_str = datetime.now().replace(month=month, day=day).strftime("%m/%d")
     url = f"http://numbersapi.com/{date_str}/date"
     response = requests.get(url)
@@ -47,8 +47,11 @@ class NumbersAPI(loader.Module):
 
     strings = {"name": "NumbersAPI"}
 
-    async def numcmd(self, message: Message):
-        """Дает интересный факт про число или дату\nНапример: .num 10 math или .num 01.01 date"""
+    @loader.command(
+        ru_doc="Дает интересный факт про число или дату\nНапример: .num 10 math или .num 01.01 date",
+        en_doc="Gives an interesting fact about a number or date\nexample: .num 10 math or .num 01.01 date",
+    )
+    async def num(self, message: Message):
         args = utils.get_args_raw(message).split()
 
         if len(args) >= 2:

@@ -48,9 +48,12 @@ class TextinstickerMod(loader.Module):
             )
         )
 
+    @loader.command(
+        ru_doc="<название цвета> [текст]",
+        en_doc="<color name> [text]",
+    )
     @loader.owner
     async def stcmd(self, message):
-        """<color name> [text]"""
         await message.delete()
         text = utils.get_args_raw(message)
         reply = await message.get_reply_message()

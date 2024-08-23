@@ -97,9 +97,12 @@ class InlineHelperMod(loader.Module):
         self.db.set(main.__name__, "command_prefix", ".")
         await call.edit(self.strings("res_prefix"))
 
+    @loader.command(
+        ru_doc="Перезагрузить юзербота",
+        en_doc="Reboot the userbot",
+    )
     async def restart_inline_handler(self, query: InlineQuery):
-        """- перезагрузить юзербота"""
-
+    
         return {
             "title": self.strings("restart_inline_handler_title"),
             "description": self.strings("restart_inline_handler_description"),
@@ -112,8 +115,11 @@ class InlineHelperMod(loader.Module):
             ],
         }
 
+    @loader.command(
+        ru_doc="Обновить юзербота",
+        en_doc="Update the userbot",
+    )
     async def update_inline_handler(self, query: InlineQuery):
-        """- обновить юзербота"""
 
         return {
             "title": self.strings("update_inline_handler_title"),
@@ -127,8 +133,11 @@ class InlineHelperMod(loader.Module):
             ],
         }
 
+    @loader.command(
+        ru_doc="Выполнить команду в терминале (лучше сразу подготовить команду и просто вставить)",
+        en_doc="Execute the command in the terminal (it is better to prepare the command immediately and just paste it)",
+    )
     async def terminal_inline_handler(self, query: InlineQuery):
-        """- выполнить команду в терминале (лучше сразу подготовить команду и просто вставить)"""
 
         text = query.args
 
@@ -148,8 +157,11 @@ class InlineHelperMod(loader.Module):
             ),
         }
 
+    @loader.command(
+        ru_doc="Вывести список установленных модулей через инлайн",
+        en_doc="Display a list of installed modules via the inline",
+    )
     async def modules_inline_handler(self, query: InlineQuery):
-        """- вывести список установленных модулей через инлайн"""
 
         result = self.strings("modules_inline_handler_result")
 
@@ -166,8 +178,11 @@ class InlineHelperMod(loader.Module):
             "message": result,
         }
 
+    @loader.command(
+        ru_doc="Сбросить префикс (осторожнее, сбрасывает ваш префикс на . )",
+        en_doc="Reset the prefix (be careful, resets your prefix to . )",
+    )
     async def resetprefix_inline_handler(self, query: InlineQuery):
-        """- сбросить префикс (осторожнее, сбрасывает ваш префикс на . )"""
 
         return {
             "title": self.strings("resetprefix_inline_handler_title"),

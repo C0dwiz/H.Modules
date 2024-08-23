@@ -17,6 +17,7 @@ import asyncio
 from .. import loader, utils
 from datetime import datetime
 from datetime import timedelta
+import calendar
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.functions.account import UpdateProfileRequest
 
@@ -67,9 +68,30 @@ class DaysToMyBirthday(loader.Module):
         self.config = loader.ModuleConfig(
             loader.ConfigValue(
                 "birthday_date",
-                str(None),
-                lambda: "Дата вашего рождения. Указывать в формате ДД.ММ. Пример: 17.06",
-            )
+                None,
+                lambda: "Дата вашего рождения. Указывать только день",
+            ),
+            loader.ConfigValue(
+                "birthday_month",
+                None,
+                "Месяц вашего рожденияbirthday_month",
+                validator=loader.validators.Choice(
+                    [
+                        "January",
+                        "February",
+                        "March",
+                        "April",
+                        "May",
+                        "June",
+                        "July",
+                        "August",
+                        "September",
+                        "October",
+                        "November",
+                        "December",
+                    ]
+                ),
+            ),
         )
 
     async def client_ready(self):
@@ -81,14 +103,13 @@ class DaysToMyBirthday(loader.Module):
                 return
 
             now = datetime.now()
-            brth = f"{self.config['birthday_date']}"
-            day, month = brth.split(".")
-            birthday = datetime(now.year, int(month), int(day))
+            day = self.config["birthday_date"]
+            monthy = self.config["birthday_month"]
+            month = list(calendar.month_name).index(monthy)
+            birthday = datetime(now.year, month, day)
 
-            if now.month > int(month) or (
-                now.month == int(month) and now.day >= int(day)
-            ):
-                birthday = datetime(now.year + 1, int(month), int(day))
+            if now.month > month or (now.month == month and now.day > day):
+                birthday = datetime(now.year + 1, month, day)
 
             time_to_birthday = abs(birthday - now)
             days = time_to_birthday.days
@@ -104,9 +125,11 @@ class DaysToMyBirthday(loader.Module):
 
             await asyncio.sleep(60)
 
-    @loader.command()
+    @loader.command(
+        ru_doc="Выставить таймер дней в ник (нестабильно)",
+        en_doc="Set the timer of days in the nickname (unstable)",
+    )
     async def btname(self, message):
-        """- выставить таймер дней в ник (нестабильно)"""
         user = await self.client(GetFullUserRequest(self.client.hikka_me.id))
         name = user.users[0].last_name
         if name is None:
@@ -114,23 +137,20 @@ class DaysToMyBirthday(loader.Module):
         self.db.set(__name__, "last_name", name)
         if self.db.get(__name__, "change_name"):
             self.db.set(__name__, "change_name", False)
-            await utils.answer(
-                message, self.strings("btname_no")
-            )
-            await message.client(
+            await utils.answer(message, self.strings("btname_no"))
+            await self.client(
                 UpdateProfileRequest(last_name=self.db.get(__name__, "last_name"))
             )
             self.db.set(__name__, "last_name", None)
         else:
             self.db.set(__name__, "change_name", True)
-            await utils.answer(
-                message, self.strings("btname_yes")
-            )
+            await utils.answer(message, self.strings("btname_yes"))
 
-    @loader.command()
+    @loader.command(
+        ru_doc="Вывести таймер",
+        en_doc="Display the timer",
+    )
     async def bt(self, message):
-        """- вывести таймер"""
-
         if self.config["birthday_date"] is None:
             await utils.answer(message, self.strings("date_error"))
             msg = await self.client.send_message(message.chat_id, self.strings("conf"))
@@ -140,12 +160,13 @@ class DaysToMyBirthday(loader.Module):
             return
 
         now = datetime.now()
-        brth = f"{self.config['birthday_date']}"
-        day, month = brth.split(".")
-        birthday = datetime(now.year, int(month), int(day))
+        day = self.config["birthday_date"]
+        monthy = self.config["birthday_month"]
+        month = list(calendar.month_name).index(monthy)
+        birthday = datetime(now.year, month, day)
 
-        if now.month > int(month) or (now.month == int(month) and now.day > int(day)):
-            birthday = datetime(now.year + 1, int(month), int(day))
+        if now.month > month or (now.month == month and now.day > day):
+            birthday = datetime(now.year + 1, month, day)
 
         time_to_birthday = abs(birthday - now)
 

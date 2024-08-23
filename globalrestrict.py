@@ -378,10 +378,11 @@ class GlobalRestrict(loader.Module):
         if silent:
             return
 
-    @loader.command()
+    @loader.command(
+        ru_doc="<реплай | юзер> [причина] [-s] - Забанить пользователя во всех чатах где ты админ",
+        en_doc="<replay | user> [reason] [-s] - Ban the user in all chats where you are the admin",
+    )
     async def glban(self, message):
-        "<реплай | юзер> [причина] [-s] - Забанить пользователя во всех чатах где ты админ"
-
         reply = await message.get_reply_message()
         args = utils.get_args_raw(message)
         if not reply and not args:
@@ -452,10 +453,11 @@ class GlobalRestrict(loader.Module):
             ),
         )
 
-    @loader.command()
+    @loader.command(
+        ru_doc="<реплай | юзер> [причина] [-s] - Разбанить пользователя во всех где ты админ",
+        en_doc="<replay | user> [reason] [-s] - To unban the user in all where you are the admin",
+    )
     async def glunban(self, message: Message):
-        "<реплай | юзер> [причина] [-s] - Разбанить пользователя во всех где ты админ"
-
         reply = await message.get_reply_message()
         args = utils.get_args_raw(message)
         if not reply and not args:
@@ -534,10 +536,11 @@ class GlobalRestrict(loader.Module):
             ),
         )
 
-    @loader.command()
+    @loader.command(
+        ru_doc="<реплай | юзер> [причина] [-s] - Замутить пользователя во всех чатах где ты админ",
+        en_doc="<replay | user> [reason] [-s] - To hook up the user in all chats where you are the admin",
+    )
     async def glmute(self, message):
-        "<реплай | юзер> [причина] [-s] - Замутить пользователя во всех чатах где ты админ"
-
         reply = await message.get_reply_message()
         args = utils.get_args_raw(message)
         if not reply and not args:
@@ -608,10 +611,11 @@ class GlobalRestrict(loader.Module):
             ),
         )
 
-    @loader.command()
+    @loader.command(
+        ru_doc="<реплай | юзер> [причина] [-s] - Размутит пользователя во всех где ты админ",
+        en_doc="<replay | user> [reason] [-s] - Will confuse the user in all where you are the admin",
+    )
     async def glunmute(self, message: Message):
-        "<реплай | юзер> [причина] [-s] - Размутит пользователя во всех где ты админ"
-
         reply = await message.get_reply_message()
         args = utils.get_args_raw(message)
         if not reply and not args:

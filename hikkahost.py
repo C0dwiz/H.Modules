@@ -126,8 +126,11 @@ class HikkahostMod(loader.Module):
             ),
         )
 
+    @loader.command(
+        ru_doc="Статус HikkaHost",
+        en_doc="Status HikkaHost",
+    )
     async def hinfocmd(self, message):
-        """Status HikkaHost"""
         message = await utils.answer(message, self.strings("loading_info"))
         if self.config["token"] is None:
             await utils.answer(message, self.strings("no_apikey"))
@@ -177,9 +180,11 @@ class HikkahostMod(loader.Module):
             ),
         )
 
+    @loader.command(
+        ru_doc="Логи HikkaHost",
+        en_doc="Logs HikkaHost",
+    )
     async def hlogscmd(self, message):
-        """Logs HikkaHost"""
-
         if self.config["token"] is None:
             await utils.answer(message, self.strings("no_apikey"))
             return
@@ -195,8 +200,11 @@ class HikkahostMod(loader.Module):
 
         await utils.answer_file(message, "log.txt", self.strings("logs"))
 
+    @loader.command(
+        ru_doc="Рестарт HikkaHost",
+        en_doc="Restart HikkaHost",
+    )
     async def hrestartcmd(self, message):
-        """Restart HikkaHost"""
         await utils.answer(message, self.strings("restart"))
 
         if self.config["token"] is None:

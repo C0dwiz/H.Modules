@@ -134,9 +134,12 @@ class FakeWallet(loader.Module):
         "<emoji document_id=5787190061644647815>🗣</emoji> Модуль предоставлен исключительно в развлекательных целях, и любое нарушение <b>Правил использования модуля</b>, если его обнаружат, будет подлежать соответствующему наказанию.</i>",
     }
 
+    @loader.command(
+        ru_doc="Чтобы заполучить поддельный кошелек",
+        en_doc="To get a fake wallet",
+    )
     @loader.command()
     async def fwalletcmd(self, message: Message):
-        """-> to get a fake wallet"""
         ton = self.config["Toncoin"]
         teth = self.config["Tether"]
         btc = self.config["Bitcoin"]
@@ -154,7 +157,10 @@ class FakeWallet(loader.Module):
             ),
         )
 
+    @loader.command(
+        ru_doc="Информация о FakeModule",
+        en_doc="Info about FakeModule",
+    )
     @loader.command()
     async def fwinfocmd(self, message):
-        """-> info about FakeModule"""
         await utils.answer(message, self.strings("info"))

@@ -35,8 +35,11 @@ class animals(loader.Module):
         "done": "<b>Вот ваш результат</b>",
     }
 
+    @loader.command(
+        ru_doc="Файлы случайных фотографий кошек",
+        en_doc="Random photos of cats files",
+    )
     async def fcatcmd(self, message: Message):
-        """random photos of cats files"""
         await utils.answer(message, self.strings("loading"))
         response = requests.get("https://api.thecatapi.com/v1/images/search")
         cat_url = response.json()[0]["url"]
@@ -44,8 +47,11 @@ class animals(loader.Module):
             message, cat_url, self.strings("done"), force_document=True
         )
 
+    @loader.command(
+        ru_doc="Случайные фотографии собачьих файлов",
+        en_doc="Random photos of dog files",
+    )
     async def fdogcmd(self, message: Message):
-        """random photos of dog files"""
         await utils.answer(message, self.strings("loading"))
         response = requests.get("https://api.thedogapi.com/v1/images/search")
         dog_url = response.json()[0]["url"]
@@ -53,8 +59,11 @@ class animals(loader.Module):
             message, dog_url, self.strings("done"), force_document=True
         )
 
+    @loader.command(
+        ru_doc="Случайные фотографии кошек",
+        en_doc="Random photos of cats",
+    )
     async def catcmd(self, message: Message):
-        """random photos of cats"""
         await utils.answer(message, self.strings("loading"))
         response = requests.get("https://api.thecatapi.com/v1/images/search")
         cat_url = response.json()[0]["url"]
@@ -62,8 +71,11 @@ class animals(loader.Module):
             message, cat_url, self.strings("done"), force_document=False
         )
 
+    @loader.command(
+        ru_doc="Случайные фотографии собаки",
+        en_doc="Random photos of dog",
+    )
     async def dogcmd(self, message: Message):
-        """random photos of dog"""
         await utils.answer(message, self.strings("loading"))
         response = requests.get("https://api.thedogapi.com/v1/images/search")
         dog_url = response.json()[0]["url"]

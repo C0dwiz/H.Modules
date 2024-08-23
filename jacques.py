@@ -48,8 +48,11 @@ class JacquesMod(loader.Module):
             ),
         )
 
+    @loader.command(
+        ru_doc="<реплай на сообщение/свой текст>",
+        en_doc="<reply to the message/your own text>",
+    )
     async def ionicmd(self, message):
-        """<реплай на сообщение/свой текст>"""
         ufr = requests.get(self.config["font"]).content
         f = ufr
 

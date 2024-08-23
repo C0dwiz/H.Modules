@@ -51,8 +51,12 @@ class AniLibriaMod(loader.Module):
     async def client_ready(self, client, db) -> None:
         self._client = client
 
-    async def arandomcmd(self, message) -> None:
-        """Возвращает случайный тайтл из базы"""
+
+    @loader.command(
+        ru_doc="Возвращает случайный тайтл из базы",
+        en_doc="Returns a random title from the database",
+    )
+    async def arandom(self, message) -> None:
         anime_title = await ani_client.get_random_title()
 
         text = f"{anime_title.names.ru} \n"
@@ -93,10 +97,11 @@ class AniLibriaMod(loader.Module):
             silent=True,
         )
 
+    @loader.command(
+        ru_doc="Возвращает список найденных по названию тайтлов",
+        en_doc="Returns a list of titles found by name",
+    )
     async def asearch_inline_handler(self, query: InlineQuery) -> None:
-        """
-        Возвращает список найденных по названию тайтлов
-        """
         text = query.args
 
         if not text:

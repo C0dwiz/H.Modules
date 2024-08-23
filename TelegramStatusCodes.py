@@ -87,8 +87,11 @@ class TelegramStatusCodes(loader.Module):
     }
 
     @loader.unrestricted
+    @loader.command(
+        ru_doc="<код состояния> - Получение информации о коде состояния",
+        en_doc="<statuscode> - Get status code info",
+    )
     async def tgccmd(self, message: Message):
-        """<statuscode> - Get status code info"""
         args = utils.get_args(message)
         if not args:
             await utils.answer(message, self.strings("syntax_error", message))
@@ -107,8 +110,11 @@ class TelegramStatusCodes(loader.Module):
         )
 
     @loader.unrestricted
+    @loader.command(
+        ru_doc="Получите все коды статуса telegram",
+        en_doc="Get all telegram status codes",
+    )
     async def tgcscmd(self, message: Message):
-        """Get all telegram status codes"""
         await utils.answer(
             message,
             "\n".join(

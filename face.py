@@ -43,8 +43,11 @@ class face(loader.Module):
         ),
     }
 
+    @loader.command(
+        ru_doc="Рандом kaomoji",
+        en_doc="Random kaomoji",
+    )
     async def rfacecmd(self, message: Message):
-        """random kaomoji"""
         await utils.answer(message, self.strings("loading"))
         response = requests.get("https://vsecoder.dev/api/faces")
         random_face = response.json()["data"]

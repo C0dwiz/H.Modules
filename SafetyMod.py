@@ -49,7 +49,11 @@ class SafetyMod(loader.Module):
         "pass": "<emoji document_id=5472287483318245416>*⃣</emoji> <b>Вот ваш безопасный пароль:</b> <code>{}</code>"
     }
 
-    async def passwordcmd(self, message):
+    @loader.command(
+        ru_doc="Случайный пароль\n-n - цифры\n-s - символы \n -l - буквы",
+        en_doc="Random password\n-n - numbers\n-s - symbols \n -l - letters",
+    )
+    async def password(self, message):
         """random password\n-n - numbers\n-s - symbols \n -l - letters"""
         text = message.text.split()
         length = 10

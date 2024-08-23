@@ -15,8 +15,10 @@ import requests
 from hikkatl.types import Message
 from .. import loader, utils
 
+__version__ = (1, 0, 0)
 
-def get_creation_date(id: int) -> str:
+
+async def get_creation_date(id: int) -> str:
     url = "https://restore-access.indream.app/regdate"
     headers = {
         "accept": "*/*",
@@ -50,12 +52,15 @@ class AccountData(loader.Module):
         "no_reply": "⚠️ Вы не ответили на сообщение пользователя",
     }
 
-    async def accdatacmd(self, message: Message):
-        """Узнать примерную дату регистрации аккаунта телеграмм"""
+    @loader.command(
+        ru_doc="Узнать примерную дату регистрации аккаунта телеграмм",
+        en_doc="Find out the approximate date of registration of the telegram account",
+    )
+    async def accdata(self, message: Message):
 
         reply = await message.get_reply_message()
         if reply:
-            data = get_creation_date(reply.from_id)
+            data = await get_creation_date(reply.from_id)
             await utils.answer(
                 message,
                 f"{self.strings('date_text').format(data=data)}\n\n{self.strings('date_text_ps')}",

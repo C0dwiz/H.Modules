@@ -57,9 +57,11 @@ class AutofarmCookiesMod(loader.Module):
         self.myid = (await client.get_me()).id
         self.cookies = 5203407003
 
-    @loader.command()
-    async def cookoncmd(self, message):
-        """Запустить автофарминг"""
+    @loader.command(
+        ru_doc="Запустить автофарминг",
+        en_doc="Launch auto-farming",
+    )
+    async def cookon(self, message):
         status = self.db.get(self.name, "status", False)
         if status:
             return await message.edit(self.strings["farmon_already"])
@@ -69,18 +71,22 @@ class AutofarmCookiesMod(loader.Module):
         )
         await message.edit(self.strings["farmon"])
 
-    @loader.command()
-    async def cookoffcmd(self, message):
-        """Остановить автофарминг"""
+    @loader.command(
+        ru_doc="Остановить автофарминг",
+        en_doc="Stop auto-farming",
+    )
+    async def cookoff(self, message):
         self.db.set(self.name, "status", False)
         coins = self.db.get(self.name, "coins", 0)
         if coins:
             self.db.set(self.name, "coins", 0)
         await message.edit(self.strings["farmoff"].replace("%coins%", str(coins)))
 
-    @loader.command()
-    async def cookiescmd(self, message):
-        """Вывод кол-ва коинов, добытых этим модулем"""
+    @loader.command(
+        ru_doc="Вывод кол-ва коинов, добытых этим модулем",
+        en_doc="Output of the number of coins mined by this module",
+    )
+    async def cookies(self, message):
         coins = self.db.get(self.name, "coins", 0)
         await message.edit(self.strings["farm"].replace("%coins%", str(coins)))
 
@@ -142,7 +148,6 @@ class AutofarmCookiesMod(loader.Module):
         mark_read: bool = False,
         delete: bool = False,
     ):
-        """Отправляет сообщение и возращает ответ"""
         async with self.client.conversation(user_id) as conv:
             msg = await conv.send_message(text)
             response = await conv.get_response()
@@ -155,10 +160,11 @@ class AutofarmCookiesMod(loader.Module):
 
             return response
 
-    @loader.command()
-    async def mecmd(self, message):
-        """Показывает ваш мешок"""
-
+    @loader.command(
+        ru_doc="Показывает ваш мешок",
+        en_doc="Shows your bag",
+    )
+    async def me(self, message):
         bot = "@cookies_game_bot"
         bags = await self.message_q(
             "/me",
@@ -171,13 +177,15 @@ class AutofarmCookiesMod(loader.Module):
         if not args:
             await utils.answer(message, bags.text)
 
-    @loader.command()
-    async def ckiescmd(self, message):
-        """Помощь по модулю AutofarmCookies"""
+    @loader.command(
+        ru_doc="Помощь по модулю AutofarmCookies",
+        en_doc="Help with the AutofarmCookies module",
+    )
+    async def ckies(self, message):
         chelp = """
-🍀| <b>Помощь по командам:</b>
-.cookon - Включает авто фарм.
-.cookoff - Выключает авто фарм.
-.farm - Показывает сколько вы нафармили.
-.me - Показывает ваш ммешок"""
+            🍀| <b>Помощь по командам:</b>
+            .cookon - Включает авто фарм.
+            .cookoff - Выключает авто фарм.
+            .farm - Показывает сколько вы нафармили.
+            .me - Показывает ваш ммешок"""
         await utils.answer(message, chelp)

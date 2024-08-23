@@ -32,8 +32,11 @@ class InlineButtonMod(loader.Module):
         "titles": "Создай сообщение с Inline Кнопкой"
     }
 
+    @loader.command(
+        ru_doc="Создать inline кнопку\nНапример: @username_bot crinl Текст сообщения, Текст кнопки, Ссылка в кнопке",
+        en_doc="Create an inline button\nexample: @username_bot crinl Message text, Button text, Link in the button",
+    )
     async def crinl_inline_handler(self, query: InlineQuery):
-        """- создать inline кнопку\nНапример: @username_bot crinl Текст сообщения, Текст кнопки, Ссылка в кнопке"""
 
         args = utils.get_args_raw(query.query)
         if args:
