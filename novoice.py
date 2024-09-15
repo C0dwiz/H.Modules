@@ -21,6 +21,7 @@ from .. import loader, utils
 logger = logging.getLogger(__name__)
 
 
+@loader.tds
 class NoVoiceMod(loader.Module):
     """A module for prohibiting the sending of voice and video messages"""
 
