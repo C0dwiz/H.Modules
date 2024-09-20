@@ -38,6 +38,7 @@ def generate_password(length, letters=True, numbers=True, symbols=True):
     return password
 
 
+@loader.tds
 class SafetyMod(loader.Module):
     """generate random password"""
 
