@@ -20,6 +20,7 @@ from .. import loader, utils, main
 from ..inline.types import InlineCall, InlineQuery
 
 
+@loader.tds
 class InlineHelperMod(loader.Module):
     """Basic management of the UB in case only the inline works"""
 
