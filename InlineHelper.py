@@ -1,16 +1,31 @@
+# Proprietary License Agreement
+
+# Copyright (c) 2024-29 CodWiz
+
+# Permission is hereby granted to any person obtaining a copy of this software and associated documentation files (the "Software"), to use the Software for personal and non-commercial purposes, subject to the following conditions:
+
+# 1. The Software may not be modified, altered, or otherwise changed in any way without the explicit written permission of the author.
+
+# 2. Redistribution of the Software, in original or modified form, is strictly prohibited without the explicit written permission of the author.
+
+# 3. The Software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. In no event shall the author or copyright holder be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the Software or the use or other dealings in the Software.
+
+# 4. Any use of the Software must include the above copyright notice and this permission notice in all copies or substantial portions of the Software.
+
+# 5. By using the Software, you agree to be bound by the terms and conditions of this license.
+
+# For any inquiries or requests for permissions, please contact codwiz@yandex.ru.
+
 # ---------------------------------------------------------------------------------
 # Name: InlineHelper
 # Description: Basic management of the UB in case only the inline works
 # Author: @hikka_mods
 # ---------------------------------------------------------------------------------
-
-# 🔒    Licensed under the GNU AGPLv3
-# 🌐 https://www.gnu.org/licenses/agpl-3.0.html
-
 # meta developer: @hikka_mods
 # scope: InlineHelper
 # scope: InlineHelper 0.0.1
 # ---------------------------------------------------------------------------------
+
 import sys
 import os
 import asyncio
@@ -103,7 +118,6 @@ class InlineHelperMod(loader.Module):
         en_doc="Reboot the userbot",
     )
     async def restart_inline_handler(self, query: InlineQuery):
-    
         return {
             "title": self.strings("restart_inline_handler_title"),
             "description": self.strings("restart_inline_handler_description"),
@@ -121,7 +135,6 @@ class InlineHelperMod(loader.Module):
         en_doc="Update the userbot",
     )
     async def update_inline_handler(self, query: InlineQuery):
-
         return {
             "title": self.strings("update_inline_handler_title"),
             "description": self.strings("update_inline_handler_description"),
@@ -139,7 +152,6 @@ class InlineHelperMod(loader.Module):
         en_doc="Execute the command in the terminal (it is better to prepare the command immediately and just paste it)",
     )
     async def terminal_inline_handler(self, query: InlineQuery):
-
         text = query.args
 
         sproc = await asyncio.create_subprocess_shell(
@@ -163,7 +175,6 @@ class InlineHelperMod(loader.Module):
         en_doc="Display a list of installed modules via the inline",
     )
     async def modules_inline_handler(self, query: InlineQuery):
-
         result = self.strings("modules_inline_handler_result")
 
         for mod in self.allmodules.modules:
@@ -184,7 +195,6 @@ class InlineHelperMod(loader.Module):
         en_doc="Reset the prefix (be careful, resets your prefix to . )",
     )
     async def resetprefix_inline_handler(self, query: InlineQuery):
-
         return {
             "title": self.strings("resetprefix_inline_handler_title"),
             "description": self.strings("resetprefix_inline_handler_description"),

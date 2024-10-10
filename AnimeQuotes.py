@@ -17,59 +17,64 @@
 # For any inquiries or requests for permissions, please contact codwiz@yandex.ru.
 
 # ---------------------------------------------------------------------------------
-# Name: Article
-# Description: Displays your article Criminal Code of the Russian Federation
+# Name: AnimeQuotes
+# Description: A module for sending random quotes from anime
 # Author: @hikka_mods
 # ---------------------------------------------------------------------------------
 # meta developer: @hikka_mods
-# scope: Article
-# scope: Article 0.0.1
+# scope: AnimeQuotes
+# scope: AnimeQuotes 0.0.1
 # requires: requests
 # ---------------------------------------------------------------------------------
 
-import requests, json, random
-from typing import Dict
-from hikkatl.types import Message
-
+import logging
+import requests
 from .. import loader, utils
 
-__version__ = (1, 0, 0)
+logger = logging.getLogger(__name__)
 
 
 @loader.tds
-class ArticleMod(loader.Module):
-    """Displays your article Criminal Code of the Russian Federation"""
+class AnimeQuotesMod(loader.Module):
+    """A module for sending random quotes from anime"""
 
     strings = {
-        "name": "Article",
-        "article": "<emoji document_id=5226512880362332956>📖</emoji> <b>Your article of the Criminal Code of the Russian Federation</b>:\n\n<blockquote>Number {}\n\n{}</blockquote>",
+        "name": "AnimeQuotes",
+        "quote_template": (
+            '<b>Quote:</b> "{quote}"\n\n'
+            "<b>Character:</b> {character}\n"
+            "<b>Anime:</b> {anime}"
+        ),
+        "error": "<b>Couldn't get a quote. Try again later!</b>",
     }
 
     strings_ru = {
-        "article": "<emoji document_id=5226512880362332956>📖</emoji> <b>Твоя статья УК РФ</b>:\n\n<blockquote>Номер {}\n\n{}</blockquote>",
+        "quote_template": (
+            '<b>Цитата:</b> "{quote}"\n\n'
+            "<b>Персонаж:</b> {character}\n"
+            "<b>Аниме:</b> {anime}"
+        ),
+        "error": "<b>Не удалось получить цитату. Попробуйте позже!</b>",
     }
 
     @loader.command(
-        ru_doc="Отображается ваша статья Уголовного кодекса Российской Федерации",
-        en_doc="Displays your article Criminal Code of the Russian Federation",
+        ru_doc="Получить случайную цитату из аниме",
+        en_doc="Get a random quote from the anime",
     )
-    async def arccmd(self, message: Message):
-        values = self._load_values()
-        if values:
-            random_key = random.choice(list(values.keys()))
-            random_value = values[random_key]
-            await utils.answer(
-                message, self.strings("article").format(random_key, random_value)
-            )
-
-    def _load_values(self) -> Dict[str, str]:
-        url = "https://raw.githubusercontent.com/Codwizer/ReModules/main/assets/zakon.json"
+    async def quote(self, message):
         try:
-            response = requests.get(url)
-            if response.ok:
-                data = json.loads(response.text)
-                return data
-        except (requests.RequestException, json.JSONDecodeError):
-            pass
+            response = requests.get("https://animechan.io/api/v1/quotes/random")
+            response.raise_for_status()
+            data = response.json()
+            quote_content = data["data"]["content"]
+            character_name = data["data"]["character"]["name"]
+            anime_name = data["data"]["anime"]["name"]
 
-        return {}
+            quote = self.strings["quote_template"].format(
+                quote=quote_content, character=character_name, anime=anime_name
+            )
+            await utils.answer(message, quote)
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Ошибка при получении цитаты: {e}")
+            await utils.answer(message, self.strings["error"])
