@@ -72,4 +72,4 @@ class Text2File(loader.Module):
             by = io.BytesIO(text.encode("utf-8"))
             by.name = self.config["name"]
 
-            await utils.answer_file(message, by)
+            await utils.answer_file(message, by, reply_to=getattr(message, "reply_to_msg_id", None),)
