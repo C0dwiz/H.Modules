@@ -55,16 +55,23 @@ class SpamBanCheckMod(loader.Module):
         en_doc="Checks your account for spam ban via @SpamBot bot",
     )
     async def spambancmd(self, message: Message):
-        async with self._client.conversation("@SpamBot") as conv:
-            msg = await conv.send_message("/start")
-            r = await conv.get_response()
-            if r.text == self.strings("svo"):
-                text = self.strings("good")
+        try:
+            response = self._client.conversation("@SpamBot")
+
+            last_message = response.messages[0]
+
+            if last_message.message.startswith("/start"):
+                if last_message.message.endswith(self.strings("svo")):
+                    reply_text = self.strings("good")
+                else:
+                    lines = last_message.message.split("\n")
+                    ban_reason = lines[2]
+                    ban_duration = lines[4]
+                    reply_text = self.strings("spamban").format(
+                        kk=ban_reason, ll=ban_duration
+                    )
+                    await answer(message, reply_text)
             else:
-                response_lines = r.text.split("\n")
-                kk = response_lines[2]
-                ll = response_lines[4]
-                text = self.strings("spamban").format(kk=kk, ll=ll)
-            await msg.delete()
-            await r.delete()
-            await answer(message, text)
+                await answer(message, self.strings("spam_bot_error"))
+        except Exception as e:
+            await answer(message, self.strings("spam_bot_error"))
