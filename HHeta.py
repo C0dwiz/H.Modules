@@ -28,26 +28,25 @@
 
 import requests, aiohttp, asyncio, re, os, gdown, inspect, io, ast, base64
 
-from typing import List, Optional
+from typing import Generic, TypeVar, List, Dict, Any, Optional
 from concurrent.futures import ThreadPoolExecutor
 
 from .. import loader, utils
 
-def get_decoded_token() -> str:
-    """Декодирует токен из base64."""
-    encoded_token = "Z2hwX1JNVFFzb2swTEtXR2wzeUp5TW96c0xvcnhuSmxzRTRCQlE4Vg=="
-    decoded_bytes = base64.b64decode(encoded_token)
-    return decoded_bytes.decode('utf-8')
+T = TypeVar("T")
 
-class Heta:
-    def __init__(self):
-        self.token = get_decoded_token()
+
+class Heta(Generic[T]):
+    def __init__(self, token: str, command_extractor: "CommandExtractor[T]"):
+        self.command_extractor = command_extractor
+        self.token = token
         self.repos = [
             "hikariatama/ftg",
             "MoriSummerz/ftg-mods",
             "vsecoder/hikka_modules",
             "AmoreForever/amoremods",
             "DziruModules/hikkamods",
+            "fajox1/famods",
             "C0dwiz/H.Modules",
             "coddrago/modules",
             "KorenbZla/HikkaModules",
@@ -81,13 +80,13 @@ class Heta:
 
     async def search_modules_parallel(self, query: str) -> List[str]:
         """Search for modules in parallel across all repositories."""
-        return await self._search_in_repos(query, self.search_repo)
+        return await self._search_repos(query, self.search_repo)
 
     async def search_modules_by_command_parallel(self, query: str) -> List[str]:
         """Search for modules by command in parallel across all repositories."""
-        return await self._search_in_repos(query, self.search_repo_by_command)
+        return await self._search_repos(query, self.search_repo_command)
 
-    async def _search_in_repos(self, query: str, search_method) -> List[str]:
+    async def _search_repos(self, query: str, search_method) -> List[str]:
         """Generic method to search repositories using a specified search method."""
         found_modules = []
         async with aiohttp.ClientSession() as session:
@@ -101,9 +100,12 @@ class Heta:
                     found_modules.extend(result)
         return found_modules
 
-    async def search_repo(self, repo, query, session):
+    async def search_repo(
+        self, repo: str, query: str, session: "aiohttp.ClientSession"
+    ) -> List[T]:
         url = f"https://api.github.com/repos/{repo}/contents"
-        headers = {"Authorization": f"token {self.token}"}
+        headers = {"Authorization": f"Bearer {self.token}"}
+
         async with session.get(url, headers=headers) as response:
             if response.status == 200:
                 data = await response.json()
@@ -111,7 +113,7 @@ class Heta:
                     {
                         "name": item["name"],
                         "repo": repo,
-                        "commands": await self.get_commands_from_module(
+                        "commands": await self.get_commands(
                             item["download_url"], session
                         ),
                         "download_url": item["download_url"],
@@ -122,18 +124,26 @@ class Heta:
                 ]
             return []
 
-    async def search_repo_by_command(self, repo, query, session):
+    async def download_file(
+        self, download_url: str, session: "aiohttp.ClientSession"
+    ) -> Optional[str]:
+        async with session.get(download_url) as response:
+            if response.status == 200:
+                return await response.text()
+        return None
+
+    async def search_repo_command(self, repo, query, session):
         url = f"https://api.github.com/repos/{repo}/contents"
-        headers = {"Authorization": f"token {self.token}"}
+        headers = {"Authorization": f"Bearer {self.token}"}
         async with session.get(url, headers=headers) as response:
             if response.status == 200:
                 data = await response.json()
                 result = []
                 for item in data:
                     if item["name"].endswith(".py"):
-                        commands = await self.get_commands_from_module(
+                        commands = await self.get_commands(
                             item["download_url"], session
-                        ) or ["<emoji document_id=5427052514094619126>🙅‍♂️</emoji>"]
+                        ) or ["None"]
                         if any(
                             isinstance(cmd, dict)
                             and "name" in cmd
@@ -151,14 +161,14 @@ class Heta:
                 return result
             return []
 
-    async def get_commands_from_module(self, download_url, session):
+    async def get_commands(self, download_url, session):
         async with session.get(download_url) as response:
             if response.status == 200:
                 content = await response.text()
-                return self.extract_commands(content)
+                return self.command_extractor.extract_commands(content)
         return {}
 
-    async def get_author_from_file(self, download_url):
+    async def get_author(self, download_url):
         async with aiohttp.ClientSession() as session:
             async with session.get(download_url) as response:
                 if response.status == 200:
@@ -173,9 +183,9 @@ class Heta:
                     )
                     if author_line:
                         return author_line.split(":")[1].strip()
-        return "???"
+        return "Автор не указал себя!"
 
-    async def get_module_description(self, download_url):
+    async def get_description(self, download_url):
         async with aiohttp.ClientSession() as session:
             async with session.get(download_url) as response:
                 if response.status == 200:
@@ -189,8 +199,14 @@ class Heta:
                             return ast.get_docstring(node) or ""
         return ""
 
-    @staticmethod
-    def extract_commands(content):
+
+class CommandExtractor(Generic[T]):
+    def extract_commands(self, content: str) -> List[T]:
+        raise NotImplementedError
+
+
+class DefaultCommandExtractor(CommandExtractor[Dict[str, str]]):
+    def extract_commands(self, content: str) -> List[Dict[str, str]]:
         try:
             tree = ast.parse(content)
         except SyntaxError:
@@ -198,7 +214,7 @@ class Heta:
 
         commands = []
 
-        def get_decorator_names(decorator_list):
+        def get_decorator_names(decorator_list: List[ast.AST]) -> List[str]:
             return [ast.unparse(decorator) for decorator in decorator_list]
 
         for node in ast.walk(tree):
@@ -234,6 +250,7 @@ class HHeta(loader.Module):
     strings = {
         "name": "HHeta",
         "no_args": "⚠️ <b>Enter a query to search.</b>",
+        "no_heta": "There is no GitHub token",
         "search": "🔎 <b>Searching...</b>",
         "no_modules": "❌ <b>No modules found.</b>",
         "commands_section": "\n<emoji document_id=5787544344906959608>ℹ️</emoji> <b>Commands:</b>\n{commands_list}",
@@ -248,6 +265,7 @@ class HHeta(loader.Module):
 
     strings_ru = {
         "no_args": "⚠️ <b>Введите запрос для поиска.</b>",
+        "no_heta": "Нету токена GitHub",
         "search": "🔎 <b>Поиск...</b>",
         "no_modules": "❌ <b>Модуль не найден.</b>",
         "commands_section": "\n<emoji document_id=5787544344906959608>ℹ️</emoji> <b>Командаы:</b>\n{commands_list}",
@@ -260,13 +278,26 @@ class HHeta(loader.Module):
         ),
     }
 
+    def __init__(self):
+        self.config = loader.ModuleConfig(
+            loader.ConfigValue(
+                "API_KEY",
+                None,
+                lambda: "https://github.com/settings/tokens",
+                validator=loader.validators.Hidden(),
+            )
+        )
+
     @loader.command(
         ru_doc="<запрос> - поиск модулей.",
         en_doc="<query> - search modules.",
     )
     async def hheta(self, message):
-        heta = Heta()
+        token = self.config["API_KEY"]
+        command_extractor = DefaultCommandExtractor()
+        heta = Heta(token, command_extractor)
         args = utils.get_args_raw(message)
+
         if not args:
             await utils.answer(message, self.strings("no_args"))
             return
@@ -298,9 +329,9 @@ class HHeta(loader.Module):
                 )
 
             description = ""
-            description = await heta.get_module_description(download_url)
+            description = await heta.get_description(download_url)
 
-            author_info = await heta.get_author_from_file(download_url)
+            author_info = await heta.get_author(download_url)
             module_name = module["name"].replace(".py", "")
             result_index = 1
 
