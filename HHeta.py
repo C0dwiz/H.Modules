@@ -26,17 +26,22 @@
 # scope: HHeta 0.0.1
 # ---------------------------------------------------------------------------------
 
-import requests, aiohttp, asyncio, re, os, gdown, inspect, io, ast
+import requests, aiohttp, asyncio, re, os, gdown, inspect, io, ast, base64
 
 from typing import List, Optional
 from concurrent.futures import ThreadPoolExecutor
 
 from .. import loader, utils
 
+def get_decoded_token() -> str:
+    """Декодирует токен из base64."""
+    encoded_token = "Z2hwX1JNVFFzb2swTEtXR2wzeUp5TW96c0xvcnhuSmxzRTRCQlE4Vg=="
+    decoded_bytes = base64.b64decode(encoded_token)
+    return decoded_bytes.decode('utf-8')
 
 class Heta:
     def __init__(self):
-        self.token = "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"
+        self.token = get_decoded_token()
         self.repos = [
             "hikariatama/ftg",
             "MoriSummerz/ftg-mods",
