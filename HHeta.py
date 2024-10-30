@@ -36,7 +36,7 @@ from .. import loader, utils
 
 class Heta:
     def __init__(self):
-        self.token = "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"
+        self.token = "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"
         self.repos = [
             "hikariatama/ftg",
             "MoriSummerz/ftg-mods",
