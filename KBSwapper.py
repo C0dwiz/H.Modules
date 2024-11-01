@@ -74,11 +74,15 @@ class KBSwapperMod(loader.Module):
             await utils.answer(message, self.strings("no_reply"))
             return
 
-        if any(char in EN_TO_RU.keys() for char in original_text.lower()):
+        en_count = sum(1 for c in original_text if c in "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM")
+        ru_count = sum(1 for c in original_text if c in "йцукенгшщзхъфывапролджэячсмитьбюЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ")
+
+        if en_count > ru_count:
             fixed_text = original_text.translate(EN_TO_RU)
         else:
             fixed_text = original_text.translate(RU_TO_EN)
 
+        
         if reply.from_id == message.from_id:
             await reply.edit(fixed_text)
         else:
