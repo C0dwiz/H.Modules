@@ -28,6 +28,7 @@
 
 from telethon.types import Message
 from .. import loader, utils
+from langdetect import detect
 
 EN_TO_RU = str.maketrans(
     "qwertyuiop[]asdfghjkl;'zxcvbnm,./" +
@@ -74,16 +75,12 @@ class KBSwapperMod(loader.Module):
             await utils.answer(message, self.strings("no_reply"))
             return
 
-        en_count = sum(1 for c in original_text if c in "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM")
-        ru_count = sum(1 for c in original_text if c in "йцукенгшщзхъфывапролджэячсмитьбюЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ")
-
-        if en_count > ru_count:
+        if original_text[0] in "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM":
             fixed_text = original_text.translate(EN_TO_RU)
         else:
             fixed_text = original_text.translate(RU_TO_EN)
 
-        
-        if reply.from_id == message.from_id:
+        if message.sender_id == reply.sender_id:
             await reply.edit(fixed_text)
         else:
             await utils.answer(
@@ -92,4 +89,4 @@ class KBSwapperMod(loader.Module):
                     self.strings("original_message").format(original=original_text),
                     self.strings("fixed_message").format(fixed=fixed_text),
                 ),
-            )
+        )
