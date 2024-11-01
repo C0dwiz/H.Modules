@@ -28,7 +28,7 @@
 
 from telethon.types import Message
 from .. import loader, utils
-from langdetect import detect
+import string
 
 EN_TO_RU = str.maketrans(
     "qwertyuiop[]asdfghjkl;'zxcvbnm,./" +
@@ -75,7 +75,7 @@ class KBSwapperMod(loader.Module):
             await utils.answer(message, self.strings("no_reply"))
             return
 
-        if original_text[0] in "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM":
+        if original_text[0].lower() in string.ascii_lowercase:
             fixed_text = original_text.translate(EN_TO_RU)
         else:
             fixed_text = original_text.translate(RU_TO_EN)
