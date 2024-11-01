@@ -30,7 +30,6 @@ import random
 import asyncio
 from .. import loader, utils
 from datetime import datetime
-from datetime import timedelta
 import calendar
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.functions.account import UpdateProfileRequest

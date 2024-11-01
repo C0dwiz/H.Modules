@@ -27,7 +27,6 @@
 # ---------------------------------------------------------------------------------
 
 import aiohttp
-import asyncio
 import json
 from datetime import datetime, timedelta, timezone
 from .. import loader, utils
@@ -67,7 +66,6 @@ async def _status(user_id, token):
 
 async def _logs(user_id, token):
     url = f"/api/host/{user_id}/logs/all"
-    headers = {"accept": "application/json", "token": token}
     return await _request(url, token)
 
 
@@ -158,7 +156,6 @@ class HikkahostMod(loader.Module):
 
         memory_stats = data["stats"]["memory_stats"]["usage"]
         memory = bytes_to_megabytes(memory_stats)
-        limit = data["stats"]["pids_stats"]["limit"]
         cpu_stats_usage = data["stats"]["cpu_stats"]["cpu_usage"]["total_usage"]
         system_cpu_usage = data["stats"]["cpu_stats"]["system_cpu_usage"]
 
@@ -169,7 +166,6 @@ class HikkahostMod(loader.Module):
         ).replace(tzinfo=timezone.utc)
         current_data = datetime.now(timezone.utc)
         days_end = (target_data - current_data).days
-        data_end = current_data.strftime("%d-%m-%Y %H-%M")
         end_dates = (current_data + timedelta(days=days_end)).strftime("%d-%m-%Y")
 
         if cpu_stats_usage and system_cpu_usage:
@@ -229,4 +225,4 @@ class HikkahostMod(loader.Module):
         token = self.config["token"]
         user_id = token.split(":")[0]
 
-        data = await _action(user_id, token)
+        await _action(user_id, token)

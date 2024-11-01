@@ -28,7 +28,7 @@
 # scope: hikka_min 1.4.2
 # -----------------------------------------------------------------------------------
 
-from hikka import loader, utils
+from hikka import loader, utils  # type: ignore
 from telethon.tl.types import Message
 import io
 

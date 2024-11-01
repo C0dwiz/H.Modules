@@ -26,9 +26,7 @@
 # scope: InlineButton 0.0.1
 # ---------------------------------------------------------------------------------
 
-import asyncio
-from ..inline.types import InlineQuery
-from ..utils import rand
+from ..inline.types import InlineQuery  # type: ignore
 from .. import loader, utils
 
 __version__ = (1, 0, 0)

@@ -27,10 +27,8 @@
 # ---------------------------------------------------------------------------------
 
 from telethon.tl.types import Message  # type: ignore
-from urllib.parse import quote
 
 from .. import loader, utils
-from ..inline.types import InlineCall, InlineQuery
 
 __version__ = (1, 0, 0)
 

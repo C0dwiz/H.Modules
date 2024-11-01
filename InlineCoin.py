@@ -26,11 +26,10 @@
 # scope: InlineCoin 0.0.1
 # ---------------------------------------------------------------------------------
 
-from .. import loader, utils
-from telethon.tl.types import Message
+from .. import loader
 import random
 
-from ..inline.types import InlineQuery
+from ..inline.types import InlineQuery  # type: ignore
 
 __version__ = (1, 0, 0)
 

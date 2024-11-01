@@ -27,7 +27,7 @@
 # requires: requests
 # ---------------------------------------------------------------------------------
 
-from hikkatl.types import Message
+from hikkatl.types import Message  # type: ignore
 import requests
 
 from .. import loader, utils

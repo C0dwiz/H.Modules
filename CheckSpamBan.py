@@ -26,8 +26,8 @@
 # scope: CheckSpamBan 0.0.1
 # ---------------------------------------------------------------------------------
 
-from .. import loader, utils
-from ..utils import answer
+from .. import loader
+from ..utils import answer  # type: ignore
 from telethon.tl.types import Message
 
 __version__ = (1, 0, 0)
@@ -73,5 +73,5 @@ class SpamBanCheckMod(loader.Module):
                     await answer(message, reply_text)
             else:
                 await answer(message, self.strings("spam_bot_error"))
-        except Exception as e:
+        except Exception:
             await answer(message, self.strings("spam_bot_error"))

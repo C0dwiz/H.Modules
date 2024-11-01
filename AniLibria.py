@@ -27,12 +27,10 @@
 # requires: anilibria.py
 # ---------------------------------------------------------------------------------
 
-from .. import loader, main
-from ..inline.types import InlineQuery
-from ..utils import rand
+from .. import loader
+from ..inline.types import InlineQuery  # type: ignore
 from aiogram.types import InlineQueryResultPhoto, CallbackQuery
 from anilibria import AniLibriaClient
-import datetime
 
 ani_client = AniLibriaClient()
 __version__ = (1, 0, 0)

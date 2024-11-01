@@ -27,11 +27,7 @@
 # requires: aiohttp
 # ---------------------------------------------------------------------------------
 
-import asyncio
-import json
 import aiohttp
-from requests import get
-from hikkatl.tl.types import Message
 
 from .. import loader, utils
 
