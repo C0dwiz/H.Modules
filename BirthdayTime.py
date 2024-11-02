@@ -28,12 +28,13 @@
 
 import random
 import asyncio
-from .. import loader, utils
-from datetime import datetime
-from datetime import timedelta
 import calendar
+
+from datetime import datetime
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.functions.account import UpdateProfileRequest
+
+from .. import loader, utils
 
 __version__ = (1, 0, 0)
 

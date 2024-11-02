@@ -27,9 +27,9 @@
 # requires: pyshorteners
 # ---------------------------------------------------------------------------------
 
-from hikkatl.types import Message
-from .. import loader, utils
 import pyshorteners
+
+from .. import loader, utils
 
 __version__ = (1, 0, 0)
 
@@ -65,7 +65,7 @@ class Shortener(loader.Module):
         ru_doc="Сократить ссылку через bit.ly",
         en_doc="Shorten the link via bit.ly",
     )
-    async def shortencmd(self, message: Message):
+    async def shortencmd(self, message):
         if self.config["token"] is None:
             await utils.answer(message, self.strings("no_api"))
             return
@@ -80,7 +80,7 @@ class Shortener(loader.Module):
         ru_doc="Посмотреть статистику ссылки через bit.ly",
         en_doc="View link statistics via bit.ly",
     )
-    async def statclcmd(self, message: Message):
+    async def statclcmd(self, message):
         if self.config["token"] is None:
             await utils.answer(message, self.strings("no_api"))
             return

@@ -66,14 +66,12 @@ class ProfileEditorMod(loader.Module):
     async def namecmd(self, message):
         args = utils.get_args_raw(message).split("/")
 
-        if len(args) == 0:
+        if len(args) < 1 or len(args) > 2:
             return await utils.answer(message, self.strings("error_format"))
-        if len(args) == 1:
-            firstname = args[0]
-            lastname = " "
-        elif len(args) == 2:
-            firstname = args[0]
-            lastname = args[1]
+
+        firstname = args[0]
+        lastname = args[1] if len(args) == 2 else ""
+
         await message.client(
             UpdateProfileRequest(first_name=firstname, last_name=lastname)
         )

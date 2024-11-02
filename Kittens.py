@@ -28,12 +28,13 @@
 # scope: hikka_min 1.4.2
 # -----------------------------------------------------------------------------------
 
-from .. import loader
-from telethon.tl.custom import Message
 import datetime
-from telethon import functions
 import random
 import time
+
+from telethon import functions
+
+from .. import loader
 
 __version__ = (1, 0, 0)
 
@@ -56,10 +57,10 @@ class Kittens(loader.Module):
         ru_doc="Чтобы завести милую кошечку",
         en_doc="To get a cute kitty",
     )
-    async def kit(self, message: Message):
+    async def kit(self, message):
         await message.edit(self.strings("search"))
         time.sleep(1)
-        chat = "mods_kitten"
+        chat = "kanalskotami"
         result = await message.client(
             functions.messages.GetHistoryRequest(
                 peer=chat,

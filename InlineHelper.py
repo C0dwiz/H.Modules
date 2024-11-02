@@ -30,9 +30,10 @@ import sys
 import os
 import asyncio
 import logging
-from .. import loader, utils, main
 
-from ..inline.types import InlineCall, InlineQuery
+from ..inline.types import InlineQuery
+
+from .. import loader, utils, main
 
 
 @loader.tds
@@ -117,7 +118,7 @@ class InlineHelperMod(loader.Module):
         ru_doc="Перезагрузить юзербота",
         en_doc="Reboot the userbot",
     )
-    async def restart_inline_handler(self, query: InlineQuery):
+    async def restart_inline_handler(self, _: InlineQuery):
         return {
             "title": self.strings("restart_inline_handler_title"),
             "description": self.strings("restart_inline_handler_description"),
@@ -134,7 +135,7 @@ class InlineHelperMod(loader.Module):
         ru_doc="Обновить юзербота",
         en_doc="Update the userbot",
     )
-    async def update_inline_handler(self, query: InlineQuery):
+    async def update_inline_handler(self, _: InlineQuery):
         return {
             "title": self.strings("update_inline_handler_title"),
             "description": self.strings("update_inline_handler_description"),
@@ -151,10 +152,10 @@ class InlineHelperMod(loader.Module):
         ru_doc="Выполнить команду в терминале (лучше сразу подготовить команду и просто вставить)",
         en_doc="Execute the command in the terminal (it is better to prepare the command immediately and just paste it)",
     )
-    async def terminal_inline_handler(self, query: InlineQuery):
+    async def terminal_inline_handler(self, _: InlineQuery):
         text = query.args
 
-        sproc = await asyncio.create_subprocess_shell(
+        await asyncio.create_subprocess_shell(
             f"{text}",
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
@@ -174,7 +175,7 @@ class InlineHelperMod(loader.Module):
         ru_doc="Вывести список установленных модулей через инлайн",
         en_doc="Display a list of installed modules via the inline",
     )
-    async def modules_inline_handler(self, query: InlineQuery):
+    async def modules_inline_handler(self, _: InlineQuery):
         result = self.strings("modules_inline_handler_result")
 
         for mod in self.allmodules.modules:
@@ -194,7 +195,7 @@ class InlineHelperMod(loader.Module):
         ru_doc="Сбросить префикс (осторожнее, сбрасывает ваш префикс на . )",
         en_doc="Reset the prefix (be careful, resets your prefix to . )",
     )
-    async def resetprefix_inline_handler(self, query: InlineQuery):
+    async def resetprefix_inline_handler(self, _: InlineQuery):
         return {
             "title": self.strings("resetprefix_inline_handler_title"),
             "description": self.strings("resetprefix_inline_handler_description"),

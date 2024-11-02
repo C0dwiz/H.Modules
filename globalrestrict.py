@@ -65,13 +65,6 @@ from telethon.tl.types import (
     UserStatusOnline,
 )
 
-from telethon.tl.types import (
-    Channel,
-    Chat,
-    Message,
-    User,
-)
-
 from .. import loader, utils
 
 __version__ = (1, 0, 0)

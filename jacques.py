@@ -27,7 +27,8 @@
 # scope: Жаконизатор 0.0.1
 # ---------------------------------------------------------------------------------
 
-import io, requests
+import io
+import requests
 from textwrap import wrap
 
 from PIL import Image, ImageDraw, ImageFont

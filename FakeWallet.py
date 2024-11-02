@@ -30,7 +30,6 @@
 # -----------------------------------------------------------------------------------
 
 from .. import loader, utils
-from telethon.tl.custom import Message
 
 __version__ = (1, 0, 0)
 
@@ -154,7 +153,7 @@ class FakeWallet(loader.Module):
         en_doc="To get a fake wallet",
     )
     @loader.command()
-    async def fwalletcmd(self, message: Message):
+    async def fwalletcmd(self, message):
         ton = self.config["Toncoin"]
         teth = self.config["Tether"]
         btc = self.config["Bitcoin"]

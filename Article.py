@@ -27,9 +27,10 @@
 # requires: requests
 # ---------------------------------------------------------------------------------
 
-import requests, json, random
+import requests
+import json
+import random
 from typing import Dict
-from hikkatl.types import Message
 
 from .. import loader, utils
 
@@ -53,9 +54,8 @@ class ArticleMod(loader.Module):
         ru_doc="Отображается ваша статья Уголовного кодекса Российской Федерации",
         en_doc="Displays your article Criminal Code of the Russian Federation",
     )
-    async def arccmd(self, message: Message):
-        values = self._load_values()
-        if values:
+    async def arccmd(self, message):
+        if values := self._load_values():
             random_key = random.choice(list(values.keys()))
             random_value = values[random_key]
             await utils.answer(

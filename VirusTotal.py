@@ -30,8 +30,8 @@
 import os
 import aiohttp
 import tempfile
+
 from .. import loader, utils
-from hikkatl.tl.types import Message
 
 __version__ = (1, 0, 0)
 
@@ -87,16 +87,14 @@ class VirusTotalMod(loader.Module):
         ru_doc="<ответ на файл> - Проверяет файлы на наличие вирусов с использованием VirusTotal",
         en_doc="<file response> - Checks files for viruses using VirusTotal",
     )
-    async def vt(self, message: Message):
+    async def vt(self, message):
         if not message.is_reply:
             await utils.answer(message, self.strings("no_reply"))
             return
-
         reply = await message.get_reply_message()
         if not reply.document:
             await utils.answer(message, self.strings("reply_not_document"))
             return
-
         if not self.config.get("token-vt"):
             await utils.answer(message, self.strings("no_apikey"))
             return
@@ -106,7 +104,6 @@ class VirusTotalMod(loader.Module):
                 await utils.answer(message, self.strings("download"))
                 file_path = os.path.join(temp_dir, reply.file.name)
                 await reply.download_media(file_path)
-
                 file_extension = os.path.splitext(reply.file.name)[1].lower()
                 allowed_extensions = (
                     ".jpg",
@@ -117,19 +114,16 @@ class VirusTotalMod(loader.Module):
                     ".gif",
                     ".txt",
                 )
-
                 if file_extension not in allowed_extensions:
                     try:
                         token = self.config["token-vt"]
                         headers = {"x-apikey": token}
-                        params = {"apikey": token}
 
                         with open(file_path, "rb") as file:
                             files = {"file": file}
                             async with session.post(
                                 "https://www.virustotal.com/api/v3/files",
                                 headers=headers,
-                                params=params,
                                 data=files,
                             ) as response:
                                 if response.status == 200:
@@ -139,7 +133,6 @@ class VirusTotalMod(loader.Module):
                                     async with session.get(
                                         f"https://www.virustotal.com/api/v3/analyses/{data_id}",
                                         headers=headers,
-                                        params=params,
                                     ) as response:
                                         if response.status == 200:
                                             result = await response.json()
@@ -150,7 +143,7 @@ class VirusTotalMod(loader.Module):
                                             ]["results"].items():
                                                 if details["category"] == "malicious":
                                                     detections.append(
-                                                        f"⛔️ <b>{engine}</b>\n ╰ <code>{details['result']}</code>"
+                                                        f"⛔️ {engine}\n ╰ {details['result']}"
                                                     )
                                             out = (
                                                 "\n".join(detections)

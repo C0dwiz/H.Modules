@@ -26,8 +26,6 @@
 # scope: Api TelegramStatusCodes 0.0.1
 # ---------------------------------------------------------------------------------
 
-from telethon.tl.types import Message
-
 from .. import loader, utils
 
 __version__ = (1, 0, 0)
@@ -105,7 +103,7 @@ class TelegramStatusCodes(loader.Module):
         ru_doc="<код состояния> - Получение информации о коде состояния",
         en_doc="<statuscode> - Get status code info",
     )
-    async def tgccmd(self, message: Message):
+    async def tgccmd(self, message):
         args = utils.get_args(message)
         if not args:
             await utils.answer(message, self.strings("syntax_error", message))
@@ -128,7 +126,7 @@ class TelegramStatusCodes(loader.Module):
         ru_doc="Получите все коды статуса telegram",
         en_doc="Get all telegram status codes",
     )
-    async def tgcscmd(self, message: Message):
+    async def tgcscmd(self, message):
         await utils.answer(
             message,
             "\n".join(

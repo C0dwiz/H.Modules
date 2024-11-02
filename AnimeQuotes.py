@@ -28,10 +28,8 @@
 # ---------------------------------------------------------------------------------
 
 import logging
-import requests
-from .. import loader, utils
 
-logger = logging.getLogger(__name__)
+from .. import loader, utils
 
 
 @loader.tds

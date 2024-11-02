@@ -35,48 +35,118 @@ from .. import loader, utils
 __version__ = (1, 0, 0)
 
 
-async def _request(path: str, token: str, method: str = "GET") -> dict:
-    url = "http://158.160.84.24:5000" + path
-    async with aiohttp.ClientSession(trust_env=True) as session:
-        async with session.request(
-            method,
-            url,
-            headers={
-                "Content-Type": "application/json",
-                "token": token,
-            },
-            ssl=False,
-        ) as response:
-            return await response.json()
+class HostApi:
+    """
+    A class for interacting with a Host API.
 
+    Args:
+        token (str): The API token.
+    """
 
-async def _stats(user_id, token):
-    url = f"/api/host/{user_id}/stats"
-    return await _request(url, token)
+    def __init__(self, token: str):
+        self.token = token
 
+    async def _request(self, path: str, method: str = "GET") -> dict:
+        """
+        Sends a request to the API.
 
-async def _host(user_id, token):
-    url = f"/api/host/{user_id}"
-    return await _request(url, token)
+        Args:
+            path (str): The API path.
+            method (str, optional): The HTTP method. Defaults to "GET".
 
+        Returns:
+            dict: The API response as a dictionary.
+        """
+        url = "http://158.160.84.24:5000" + path
+        async with aiohttp.ClientSession(trust_env=True) as session:
+            async with session.request(
+                method,
+                url,
+                headers={
+                    "Content-Type": "application/json",
+                    "token": self.token,
+                },
+                ssl=False,
+            ) as response:
+                return await response.json()
 
-async def _status(user_id, token):
-    url = f"/api/host/{user_id}/status"
-    return await _request(url, token)
+    async def stats(self, user_id: int) -> dict:
+        """
+        Gets the host stats.
 
+        Args:
+          user_id (int): The user ID.
 
-async def _logs(user_id, token):
-    url = f"/api/host/{user_id}/logs/all"
-    headers = {"accept": "application/json", "token": token}
-    return await _request(url, token)
+        Returns:
+          dict: The host stats.
+        """
+        url = f"/api/host/{user_id}/stats"
+        return await self._request(url)
 
+    async def host_info(self, user_id: int) -> dict:
+        """
+        Gets the host information.
 
-async def _action(user_id, token):
-    url = f"/api/host/{user_id}?action=restart"
-    return await _request(url, token, "PUT")
+        Args:
+          user_id (int): The user ID.
+
+        Returns:
+          dict: The host information.
+        """
+        url = f"/api/host/{user_id}"
+        return await self._request(url)
+
+    async def status(self, user_id: int) -> dict:
+        """
+        Gets the host status.
+
+        Args:
+          user_id (int): The user ID.
+
+        Returns:
+          dict: The host status.
+        """
+        url = f"/api/host/{user_id}/status"
+        return await self._request(url)
+
+    async def logs(self, user_id: int) -> dict:
+        """
+        Gets the host logs.
+
+        Args:
+          user_id (int): The user ID.
+
+        Returns:
+          dict: The host logs.
+        """
+        url = f"/api/host/{user_id}/logs/all"
+        return await self._request(url)
+
+    async def action(self, user_id: int, action: str = "restart") -> dict:
+        """
+        Performs an action on the host.
+
+        Args:
+          user_id (int): The user ID.
+          action (str, optional): The action to perform. Defaults to "restart".
+
+        Returns:
+          dict: The action result.
+        """
+        url = f"/api/host/{user_id}?action={action}"
+        return await self._request(url, method="PUT")
 
 
 def bytes_to_megabytes(b: int):
+    """
+    Converts bytes to megabytes.
+
+      Args:
+          b (int): The number of bytes.
+
+    Returns:
+        float: The number of megabytes.
+    """
     return round(b / 1024 / 1024, 1)
 
 
@@ -153,29 +223,41 @@ class HikkahostMod(loader.Module):
 
         token = self.config["token"]
         user_id = token.split(":")[0]
-        data = await _stats(user_id, token)
-        datas = await _status(user_id, token)
+        api = HostApi(token)
 
-        memory_stats = data["stats"]["memory_stats"]["usage"]
-        memory = bytes_to_megabytes(memory_stats)
-        limit = data["stats"]["pids_stats"]["limit"]
-        cpu_stats_usage = data["stats"]["cpu_stats"]["cpu_usage"]["total_usage"]
-        system_cpu_usage = data["stats"]["cpu_stats"]["system_cpu_usage"]
+        stats_data = await api.stats(user_id)
+        host_data = await api.host_info(user_id)
+        datas = await api.status(user_id)
 
-        host = await _host(user_id, token)
-        server_id = host["host"]["server_id"]
+        memory = bytes_to_megabytes(stats_data["stats"]["memory_stats"]["usage"])
+        cpu_percent = (
+            round(
+                (
+                    stats_data["stats"]["cpu_stats"]["cpu_usage"]["total_usage"]
+                    / stats_data["stats"]["cpu_stats"]["system_cpu_usage"]
+                )
+                * 100.0,
+                2,
+            )
+            if stats_data["stats"]["cpu_stats"]["cpu_usage"]["total_usage"]
+            and stats_data["stats"]["cpu_stats"]["system_cpu_usage"]
+            else None
+        )
+        ram_percent = round(
+            bytes_to_megabytes(
+                stats_data["stats"]["memory_stats"]["usage"] / self.MAX_RAM
+            )
+            * 100,
+            2,
+        )
+
+        server_id = host_data["host"]["server_id"]
         target_data = datetime.fromisoformat(
-            host["host"]["end_date"].replace("Z", "+00:00")
+            host_data["host"]["end_date"].replace("Z", "+00:00")
         ).replace(tzinfo=timezone.utc)
         current_data = datetime.now(timezone.utc)
         days_end = (target_data - current_data).days
-        data_end = current_data.strftime("%d-%m-%Y %H-%M")
         end_dates = (current_data + timedelta(days=days_end)).strftime("%d-%m-%Y")
-
-        if cpu_stats_usage and system_cpu_usage:
-            cpu_percent = round((cpu_stats_usage / system_cpu_usage) * 100.0, 2)
-
-        ram_percent = round(bytes_to_megabytes(memory_stats / self.MAX_RAM) * 100, 2)
 
         if "status" in datas and datas["status"] == "running":
             status = self.strings("condition")
@@ -206,7 +288,8 @@ class HikkahostMod(loader.Module):
 
         token = self.config["token"]
         user_id = token.split(":")[0]
-        data = await _logs(user_id, token)
+        api = HostApi(token)
+        data = await api.logs(user_id, token)
 
         files_log = data["logs"]
 
@@ -228,5 +311,6 @@ class HikkahostMod(loader.Module):
 
         token = self.config["token"]
         user_id = token.split(":")[0]
+        api = HostApi(token)
 
-        data = await _action(user_id, token)
+        data = await api.action(user_id, token)

@@ -27,29 +27,43 @@
 # ---------------------------------------------------------------------------------
 
 import random
-from telethon.tl.types import Message
+import string
 
 from .. import loader, utils
 
 __version__ = (1, 0, 0)
 
 
-def generate_password(length, letters=True, numbers=True, symbols=True):
-    """Function to generate random password"""
-    LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-    NUMBERS = "0123456789"
-    SYMBOLS = "!#$%&*+-=?@^_"
-    charsets = []
+def generate_password(
+    length: int, letters: bool = True, numbers: bool = True, symbols: bool = True
+) -> str:
+    """Generates a random password with customizable options.
+
+    Args:
+        length: The desired length of the password.
+        letters: Include lowercase and uppercase letters (default: True).
+        numbers: Include digits (default: True).
+        symbols: Include common symbols (default: True).
+
+    Returns:
+        A randomly generated password string.
+
+    Raises:
+        ValueError: If all character sets are disabled (letters, numbers, symbols).
+    """
+    character_sets = []
     if letters:
-        charsets.append(LETTERS)
+        character_sets.append(string.ascii_letters)
     if numbers:
-        charsets.append(NUMBERS)
+        character_sets.append(string.digits)
     if symbols:
-        charsets.append(SYMBOLS)
-    if not charsets:
+        character_sets.append(string.punctuation)
+
+    if not character_sets:
         raise ValueError("At least one of letters, numbers, or symbols must be True")
-    charset = "".join(charsets)
-    password = "".join(random.choice(charset) for i in range(length))
+
+    combined_characters = "".join(character_sets)
+    password = "".join(random.choice(combined_characters) for _ in range(length))
     return password
 
 

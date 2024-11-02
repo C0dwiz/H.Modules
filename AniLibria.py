@@ -27,12 +27,11 @@
 # requires: anilibria.py
 # ---------------------------------------------------------------------------------
 
-from .. import loader, main
 from ..inline.types import InlineQuery
-from ..utils import rand
 from aiogram.types import InlineQueryResultPhoto, CallbackQuery
 from anilibria import AniLibriaClient
-import datetime
+
+from .. import loader
 
 ani_client = AniLibriaClient()
 __version__ = (1, 0, 0)
@@ -125,14 +124,15 @@ class AniLibriaMod(loader.Module):
 
         inline_query = []
         for anime_title in anime_titles:
-            title_text = f"{anime_title.names.ru} | {anime_title.names.en}\n"
-            title_text += f"{self.strings['status']} {anime_title.status.string}\n\n"
-            title_text += f"{self.strings['type']} {anime_title.type.full_string}\n"
-            title_text += f"{self.strings['season']} {anime_title.season.string} {anime_title.season.year}\n"
-            title_text += f"{self.strings['genres']} {' '.join(anime_title.genres)}\n\n"
-
-            title_text += f"<code>{anime_title.description}</code>\n\n"
-            title_text += f"{self.strings['favorite']} {anime_title.in_favorites}"
+            title_text = (
+                f"{anime_title.names.ru} | {anime_title.names.en}\n"
+                f"{self.strings['status']} {anime_title.status.string}\n\n"
+                f"{self.strings['type']} {anime_title.type.full_string}\n"
+                f"{self.strings['season']} {anime_title.season.string} {anime_title.season.year}\n"
+                f"{self.strings['genres']} {' '.join(anime_title.genres)}\n\n"
+                f"<code>{anime_title.description}</code>\n\n"
+                f"{self.strings['favorite']} {anime_title.in_favorites}"
+            )
 
             inline_query.append(
                 InlineQueryResultPhoto(
@@ -153,14 +153,15 @@ class AniLibriaMod(loader.Module):
     async def inline__update(self, call: CallbackQuery) -> None:
         anime_title = await ani_client.get_random_title()
 
-        text = f"{anime_title.names.ru} \n"
-        text += f"{self.strings['status']} {anime_title.status.string}\n\n"
-        text += f"{self.strings['type']} {anime_title.type.full_string}\n"
-        text += f"{self.strings['season']} {anime_title.season.string}\n"
-        text += f"{self.strings['genres']} {' '.join(anime_title.genres)}\n\n"
-
-        text += f"<code>{anime_title.description}</code>\n\n"
-        text += f"{self.strings['favorite']} {anime_title.in_favorites}"
+        text = (
+            f"{anime_title.names.ru} \n"
+            f"{self.strings['status']} {anime_title.status.string}\n\n"
+            f"{self.strings['type']} {anime_title.type.full_string}\n"
+            f"{self.strings['season']} {anime_title.season.string}\n"
+            f"{self.strings['genres']} {' '.join(anime_title.genres)}\n\n"
+            f"<code>{anime_title.description}</code>\n\n"
+            f"{self.strings['favorite']} {anime_title.in_favorites}"
+        )
 
         kb = [
             [

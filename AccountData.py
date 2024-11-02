@@ -27,13 +27,12 @@
 # ---------------------------------------------------------------------------------
 
 import requests
-from hikkatl.types import Message
 from .. import loader, utils
 
 __version__ = (1, 0, 0)
 
 
-async def get_creation_date(id: int) -> str:
+async def get_creation_date(tg_id: int) -> str:
     url = "https://restore-access.indream.app/regdate"
     headers = {
         "accept": "*/*",
@@ -42,7 +41,7 @@ async def get_creation_date(id: int) -> str:
         "x-api-key": "e758fb28-79be-4d1c-af6b-066633ded128",
         "accept-language": "en-US,en;q=0.9",
     }
-    data = {"telegramId": id}
+    data = {"telegramId": tg_id}
     response = requests.post(url, headers=headers, json=data)
     if response.status_code == 200:
         return response.json()["data"]["date"]
@@ -71,9 +70,8 @@ class AccountData(loader.Module):
         ru_doc="Узнать примерную дату регистрации аккаунта телеграмм",
         en_doc="Find out the approximate date of registration of the telegram account",
     )
-    async def accdata(self, message: Message):
-        reply = await message.get_reply_message()
-        if reply:
+    async def accdata(self, message):
+        if reply := await message.get_reply_message():
             data = await get_creation_date(reply.from_id)
             await utils.answer(
                 message,

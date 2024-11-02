@@ -26,10 +26,10 @@
 # scope: NumbersAPI 0.0.1
 # ---------------------------------------------------------------------------------
 
-from hikkatl.types import Message
-from .. import loader, utils
 import requests
+
 from datetime import datetime
+from .. import loader, utils
 
 __version__ = (1, 0, 0)
 
@@ -65,7 +65,7 @@ class NumbersAPI(loader.Module):
         ru_doc="Дает интересный факт про число или дату\nНапример: .num 10 math или .num 01.01 date",
         en_doc="Gives an interesting fact about a number or date\nexample: .num 10 math or .num 01.01 date",
     )
-    async def num(self, message: Message):
+    async def num(self, message):
         args = utils.get_args_raw(message).split()
 
         if len(args) >= 2:

@@ -27,8 +27,6 @@
 # ---------------------------------------------------------------------------------
 
 from .. import loader, utils
-from ..utils import answer
-from telethon.tl.types import Message
 
 __version__ = (1, 0, 0)
 
@@ -54,7 +52,7 @@ class SpamBanCheckMod(loader.Module):
         ru_doc="Проверяет вашу учетную запись на спам-бан с помощью бота @SpamBot",
         en_doc="Checks your account for spam ban via @SpamBot bot",
     )
-    async def spambancmd(self, message: Message):
+    async def spambancmd(self, message):
         try:
             response = self._client.conversation("@SpamBot")
 
@@ -70,8 +68,8 @@ class SpamBanCheckMod(loader.Module):
                     reply_text = self.strings("spamban").format(
                         kk=ban_reason, ll=ban_duration
                     )
-                    await answer(message, reply_text)
+                    await utils.answer(message, reply_text)
             else:
-                await answer(message, self.strings("spam_bot_error"))
+                await utils.answer(message, self.strings("spam_bot_error"))
         except Exception as e:
-            await answer(message, self.strings("spam_bot_error"))
+            await utils.answer(message, self.strings("spam_bot_error"))

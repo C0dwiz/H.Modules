@@ -28,9 +28,9 @@
 # scope: hikka_min 1.4.2
 # -----------------------------------------------------------------------------------
 
-from hikka import loader, utils
-from telethon.tl.types import Message
 import io
+
+from .. import loader, utils
 
 __version__ = (1, 0, 0)
 
@@ -63,7 +63,7 @@ class Text2File(loader.Module):
         ru_doc="Создать файл с вашим текстом или кодом",
         en_doc="Create a file with your text or code",
     )
-    async def ttfcmd(self, message: Message):
+    async def ttfcmd(self, message):
         args = utils.get_args_raw(message)
         if not args:
             await utils.answer(message, self.strings("no_args"))
@@ -72,4 +72,8 @@ class Text2File(loader.Module):
             by = io.BytesIO(text.encode("utf-8"))
             by.name = self.config["name"]
 
-            await utils.answer_file(message, by, reply_to=getattr(message, "reply_to_msg_id", None),)
+            await utils.answer_file(
+                message,
+                by,
+                reply_to=getattr(message, "reply_to_msg_id", None),
+            )

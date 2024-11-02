@@ -57,67 +57,51 @@ class MusicMod(loader.Module):
     }
 
     @loader.command(
-        ru_doc="Найти трек по названию из Yandex music",
-        en_doc="Find a track by name from Yandex music",
+        ru_doc="Найти трек по названию в Yandex Music или VK: `searchm yandex {название}` или `searchm vk {название}`",
+        en_doc="Find a track by name in Yandex Music or VK: `searchm yandex {name}` or `searchm vk {name}`",
     )
-    async def ymcmd(self, message):
+    async def searchm(self, message):
         args = utils.get_args_raw(message)
         r = await message.get_reply_message()
-        bot = "@Yandex_music_download_bot"
-        if not args:
-            return await message.edit(self.strings("nenashel"))
-        try:
-            await message.edit(self.strings("searching"))
-            music = await message.client.inline_query(bot, args)
-            await message.delete()
-            try:
-                await message.client.send_file(
-                    message.to_id,
-                    music[1].result.document,
-                    caption=self.strings("done"),
-                    reply_to=utils.get_topic(message) if r else None,
-                )
-            except:
-                await message.client.send_file(
-                    message.to_id,
-                    music[3].result.document,
-                    caption=self.strings("done"),
-                    reply_to=utils.get_topic(message) if r else None,
-                )
-        except:
-            return await message.client.send_message(
-                message.chat_id, self.strings("error").format(args=args)
-            )
 
-    @loader.command(
-        ru_doc="Найти трек по названию из VK",
-        en_doc="Find a track by name from VK",
-    )
-    async def vkmcmd(self, message):
-        args = utils.get_args_raw(message)
-        r = await message.get_reply_message()
-        bot = "@vkmusic_bot"
-        if not args:
+        if len(args) < 2:
+            return await message.edit(self.strings("wrong_format"))
+
+        service = args[0].lower()
+        name = " ".join(args[1:])
+
+        bot_names = {
+            "yandex": "@Yandex_music_download_bot",
+            "vk": "@vkmusic_bot",
+        }
+
+        if service not in bot_names:
+            return await message.edit(self.strings("wrong_service"))
+
+        bot = bot_names[service]
+
+        if not name:
             return await message.edit(self.strings("nenashel"))
+
         try:
             await message.edit(self.strings("searching"))
-            music = await message.client.inline_query(bot, args)
+            music = await message.client.inline_query(bot, name)
             await message.delete()
-            try:
-                await message.client.send_file(
-                    message.to_id,
-                    music[1].result.document,
-                    caption=self.strings("done"),
-                    reply_to=utils.get_topic(message) if r else None,
-                )
-            except:
-                await message.client.send_file(
-                    message.to_id,
-                    music[3].result.document,
-                    caption=self.strings("done"),
-                    reply_to=utils.get_topic(message) if r else None,
-                )
+            for i in range(1, len(music), 2):
+                try:
+                    await message.client.send_file(
+                        message.to_id,
+                        music[i].result.document,
+                        caption=self.strings("done"),
+                        reply_to=utils.get_topic(message) if r else None,
+                    )
+                    return
+                except:
+                    pass
+            return await message.client.send_message(
+                message.chat_id, self.strings("error").format(args=name)
+            )
         except:
             return await message.client.send_message(
-                message.chat_id, self.strings("error").format(args=args)
+                message.chat_id, self.strings("error").format(args=name)
             )

@@ -26,23 +26,20 @@
 # scope: KBSwapper 0.0.1
 # ---------------------------------------------------------------------------------
 
-from telethon.types import Message
+import string
+
 from .. import loader, utils
-from langdetect import detect
 
 EN_TO_RU = str.maketrans(
-    "qwertyuiop[]asdfghjkl;'zxcvbnm,./" +
-    "QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>?",
-    "йцукенгшщзхъфывапролджэячсмитьбю." +
-    "ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,"
+    "qwertyuiop[]asdfghjkl;'zxcvbnm,./" + 'QWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>?',
+    "йцукенгшщзхъфывапролджэячсмитьбю." + "ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,",
 )
 
 RU_TO_EN = str.maketrans(
-    "йцукенгшщзхъфывапролджэячсмитьбю." +
-    "ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,",
-    "qwertyuiop[]asdfghjkl;'zxcvbnm,./" +
-    "QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>?"
+    "йцукенгшщзхъфывапролджэячсмитьбю." + "ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,",
+    "qwertyuiop[]asdfghjkl;'zxcvbnm,./" + 'QWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>?',
 )
+
 
 @loader.tds
 class KBSwapperMod(loader.Module):
@@ -64,7 +61,7 @@ class KBSwapperMod(loader.Module):
         ru_doc="При ответе на своё сообщение меняет раскладку путем редактирования, на чужое — в отдельном сообщении.",
         en_doc="Change keyboard layout for the replied message.",
     )
-    async def swap(self, message: Message):
+    async def swap(self, message):
         reply = await message.get_reply_message()
         if not reply:
             await utils.answer(message, self.strings("no_reply"))
@@ -75,7 +72,7 @@ class KBSwapperMod(loader.Module):
             await utils.answer(message, self.strings("no_reply"))
             return
 
-        if original_text[0] in "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM":
+        if original_text[0].lower() in string.ascii_lowercase:
             fixed_text = original_text.translate(EN_TO_RU)
         else:
             fixed_text = original_text.translate(RU_TO_EN)
@@ -89,4 +86,4 @@ class KBSwapperMod(loader.Module):
                     self.strings("original_message").format(original=original_text),
                     self.strings("fixed_message").format(fixed=fixed_text),
                 ),
-        )
+            )

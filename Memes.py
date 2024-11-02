@@ -35,7 +35,6 @@ import aiohttp
 import random
 import urllib.request
 import json
-from telethon.tl.types import Message
 
 from .. import loader, utils
 
@@ -79,7 +78,7 @@ class MemesMod(loader.Module):
         ru_doc="",
         en_doc="",
     )
-    async def memescmd(self, message: Message):
+    async def memescmd(self, message):
         img = await get_random_image()
         await self.inline.form(
             text=self.strings("done"),

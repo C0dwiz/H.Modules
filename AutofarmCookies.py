@@ -27,10 +27,9 @@
 # ---------------------------------------------------------------------------------
 
 import random
-from datetime import timedelta
 
+from datetime import timedelta
 from telethon import functions
-from telethon.tl.types import Message
 
 from .. import loader, utils
 

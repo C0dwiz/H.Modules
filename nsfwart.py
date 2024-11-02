@@ -29,7 +29,6 @@
 import functools
 import requests
 from typing import List
-from hikkatl.tl.types import Message
 
 from .. import loader, utils
 
@@ -78,7 +77,7 @@ class NSFWArtMod(loader.Module):
         ru_doc="Отправьте симпатичный nsfw-арт",
         en_doc="Send cute nsfw-art",
     )
-    async def nsfwartcmd(self, message: Message):
+    async def nsfwartcmd(self, message):
         tags = self.config["tags"]
         subreddit = f"/v2?tag={tags}"
 

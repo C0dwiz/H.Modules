@@ -27,7 +27,6 @@
 # requires: requests
 # ---------------------------------------------------------------------------------
 
-from hikkatl.types import Message
 import requests
 
 from .. import loader, utils
@@ -62,7 +61,7 @@ class face(loader.Module):
         ru_doc="Рандом kaomoji",
         en_doc="Random kaomoji",
     )
-    async def rfacecmd(self, message: Message):
+    async def rfacecmd(self, message):
         await utils.answer(message, self.strings("loading"))
         response = requests.get("https://vsecoder.dev/api/faces")
         random_face = response.json()["data"]
