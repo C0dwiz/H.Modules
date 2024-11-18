@@ -27,7 +27,7 @@
 # ---------------------------------------------------------------------------------
 
 import requests
-import baiohttp
+import aiohttp
 import asyncio
 import re
 import os
