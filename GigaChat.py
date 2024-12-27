@@ -66,8 +66,8 @@ class GigaChatMod(loader.Module):
         )
 
     @loader.command(
-        ru_doc="Получите исчерпывающий ответ на свой вопрос"
-        en_doc="Get GigaResponse to your question"
+        ru_doc="Получите исчерпывающий ответ на свой вопрос",
+        en_doc="Get GigaResponse to your question",
     )
     async def gigacmd(self, message):
         api_key = self.config["GIGACHAT_API_KEY"]
