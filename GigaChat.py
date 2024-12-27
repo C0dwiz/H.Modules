@@ -90,7 +90,7 @@ class GigaChatMod(loader.Module):
     async def get_giga_response(self, api_key, query):
         """Gets a response from GigaChat with the specified query."""
         async with GigaChat(credentials=api_key, scope="GIGACHAT_API_PERS", verify_ssl_certs=False) as giga:
-            response = await giga.chat(query)
+            response = giga.chat(query)
             if response.choices:
                 return response.choices[0].message.content
             return None
