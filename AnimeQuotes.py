@@ -28,6 +28,7 @@
 # ---------------------------------------------------------------------------------
 
 import logging
+import requests
 
 from .. import loader, utils
 

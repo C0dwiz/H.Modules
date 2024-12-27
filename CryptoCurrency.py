@@ -1,4 +1,4 @@
- Proprietary License Agreement
+# Proprietary License Agreement
 
 # Copyright (c) 2024-29 CodWiz
 
@@ -65,8 +65,8 @@ class CryptoCurrencyMod(loader.Module):
         return next((item for item in data['data'] if query.lower() in item['name'].lower() or query.lower() in item['symbol'].lower()), None)
 
     @loader.command(
-        ru_doc="Отображает текущий курс криптовалюты в рублях, долларах США и евро"
-        en_doc="Displays the current cryptocurrency rate in RUB, USD, and EUR"
+        ru_doc="Отображает текущий курс криптовалюты в рублях, долларах США и евро",
+        en_doc="Displays the current cryptocurrency rate in RUB, USD, and EUR",
     )
     async def crypto(self, message):
         query = utils.get_args_raw(message)
