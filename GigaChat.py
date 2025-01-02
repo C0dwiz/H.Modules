@@ -42,9 +42,9 @@ class GigaChatMod(loader.Module):
         "response_error": "Failed to get a response from GigaChat.",
         "error_occurred": "An error occurred: {}",
         "formatted_response": (
-             "<emoji document_id=6030848053177486888>❓</emoji> Query: {}\n"
-             "<emoji document_id=6030400221232501136>🤖</emoji> GigaResponse: {}"
-        )
+            "<emoji document_id=6030848053177486888>❓</emoji> Query: {}\n"
+            "<emoji document_id=6030400221232501136>🤖</emoji> GigaChat: {}"
+        ),
     }
 
     strings_ru = {
@@ -53,16 +53,16 @@ class GigaChatMod(loader.Module):
         "response_error": "Не удалось получить ответ от GigaChat.",
         "error_occurred": "Произошла ошибка: {}",
         "formatted_response": (
-             "<emoji document_id=6030848053177486888>❓</emoji> Запрос: {}\n"
-             "<emoji document_id=6030400221232501136>🤖</emoji> GigaChat ответ: {}"
-        )
+            "<emoji document_id=6030848053177486888>❓</emoji> Запрос: {}\n"
+            "<emoji document_id=6030400221232501136>🤖</emoji> GigaChat: {}"
+        ),
     }
 
     def __init__(self):
         self.config = loader.ModuleConfig(
             "GIGACHAT_API_KEY",
             None,
-            "Введите ваш API ключ для GigaChat, Чтобы получить ключ API, перейдите сюда: https://developers.sber.ru/studio/workspaces"
+            "Введите ваш API ключ для GigaChat, Чтобы получить ключ API, перейдите сюда: https://developers.sber.ru/studio/workspaces",
         )
 
     @loader.command(
@@ -81,7 +81,9 @@ class GigaChatMod(loader.Module):
         try:
             response = await self.get_giga_response(api_key, query)
             if response:
-                await utils.answer(message, self.strings("formatted_response").format(query, response))
+                await utils.answer(
+                    message, self.strings("formatted_response").format(query, response)
+                )
             else:
                 await utils.answer(message, self.strings("response_error"))
         except Exception as e:
@@ -89,7 +91,9 @@ class GigaChatMod(loader.Module):
 
     async def get_giga_response(self, api_key, query):
         """Gets a response from GigaChat with the specified query."""
-        async with GigaChat(credentials=api_key, scope="GIGACHAT_API_PERS", verify_ssl_certs=False) as giga:
+        async with GigaChat(
+            credentials=api_key, scope="GIGACHAT_API_PERS", verify_ssl_certs=False
+        ) as giga:
             response = giga.chat(query)
             if response.choices:
                 return response.choices[0].message.content

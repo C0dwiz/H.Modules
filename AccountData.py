@@ -56,13 +56,13 @@ class AccountData(loader.Module):
     strings = {
         "name": "AccountData",
         "date_text": "<emoji document_id=5983150113483134607>⏰️</emoji> Date of registration of this account: {data}",
-        "date_text_ps": "<emoji document_id=6028435952299413210>ℹ</emoji> P.S. The registration date is approximate, as it is almost impossible to know for sure",
+        "date_text_ps": "<emoji document_id=6028435952299413210>ℹ</emoji> The registration date is approximate, as it is almost impossible to know for sure",
         "no_reply": "<emoji document_id=6030512294109122096>💬</emoji> You did not reply to the user's message",
     }
 
     strings_ru = {
         "date_text": "<emoji document_id=5983150113483134607>⏰️</emoji> Дата регистрации этого аккаунта: {data}",
-        "date_text_ps": "<emoji document_id=6028435952299413210>ℹ</emoji> P.S. Дата регистрации примерная, так как точно узнать практически невозможно",
+        "date_text_ps": "<emoji document_id=6028435952299413210>ℹ</emoji> Дата регистрации примерная, так как точно узнать практически невозможно",
         "no_reply": "<emoji document_id=6030512294109122096>💬</emoji> Вы не ответили на сообщение пользователя",
     }
 
