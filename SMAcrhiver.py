@@ -48,7 +48,7 @@ class SMArchiver(loader.Module):
         "processing": "🛠️ Processing messages... Please wait.\n\nP.S: Be careful, if you have a lot of messages, you may get flooding, and if you have a lot of heavy files, the download will be slower than usual."
     }
 
-    strings = {
+    strings_ru = {
         "archive_created": "🎉 Архив с сообщениями успешно создан: {filename}",
         "no_messages": "⚠️ В Избранном нет сообщений.",
         "error": "❌ Произошла ошибка: {error}",
