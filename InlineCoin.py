@@ -29,20 +29,9 @@
 import random
 
 from ..inline.types import InlineQuery
-
 from .. import loader, utils
 
 __version__ = (1, 0, 0)
-
-coin = [
-    "🌚 Выпал орёл!",
-    "🌝 Выпала решка!",
-    "🙀 Чудо, монетка осталась на ребре!",
-    "🌚 Выпал орёл!",
-    "🌚 Выпал орёл!",
-    "🌝 Выпала решка!",
-    "🌝 Выпала решка!",
-]
 
 
 @loader.tds
@@ -53,16 +42,35 @@ class CoinSexMod(loader.Module):
         "name": "InlineCoin",
         "titles": "Heads or tails?",
         "description": "Let's find out!",
+        "heads": "🌚 An eagle fell out!",
+        "tails": "🌝 Tails fell out!",
+        "edge": "🙀 Miraculously, the coin remained on the edge!",
     }
 
-    strings_ru = {"titles": "Орёл или решка?", "description": "Давай узнаем!"}
+    strings_ru = {
+        "titles": "Орёл или решка?",
+        "description": "Давай узнаем!",
+        "heads": "🌚 Выпал орёл!",
+        "tails": "🌝 Выпала решка!",
+        "edge": "🙀 Чудо, монетка осталась на ребре!",
+    }
 
-    @loader.inline_everyone
+    def get_coin_flip_result(self) -> dict:
+        results = [self.strings("heads"), self.strings("tails")]
+        if random.random() < 0.1:
+            return self.strings("edge")
+        else:
+            return random.choice(results)
+
+    @loader.command(
+        ru_doc="Подбросит монетку ",
+        en_doc="Flip a coin",
+    )
     async def coin_inline_handler(self, query: InlineQuery):
-        coinrand = random.choice(coin)
+        result = self.get_coin_flip_result()
         return {
             "title": self.strings("titles"),
             "description": self.strings("description"),
-            "message": f"<b>{coinrand}</b>",
+            "message": f"<b>{result}</b>",
             "thumb": "https://github.com/Codwizer/ReModules/blob/main/assets/images.png",
         }
