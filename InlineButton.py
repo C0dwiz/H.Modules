@@ -28,10 +28,8 @@
 
 import asyncio
 from ..inline.types import InlineQuery
-from ..utils import rand
-from .. import loader, utils
 
-__version__ = (1, 0, 0)
+from .. import loader, utils
 
 
 @loader.tds
@@ -41,9 +39,17 @@ class InlineButtonMod(loader.Module):
     strings = {
         "name": "InlineButton",
         "titles": "Create a message with the Inline Button",
+        "error_title": "Error",
+        "error_description": "Invalid input format. Please provide exactly three comma-separated values.",
+        "error_message": "Make sure your input is formatted as: message, name, url.",
     }
 
-    strings_ru = {"titles": "Создай сообщение с Inline Кнопкой"}
+    strings_ru = {
+        "titles": "Создай сообщение с Inline Кнопкой",
+        "error_title": "Ошибка",
+        "error_description": "Неверный формат ввода. Пожалуйста, укажите ровно три значения, разделенных запятыми.",
+        "error_message": "Убедитесь, что ваш ввод имеет следующий формат: сообщение, имя, url.",
+    }
 
     @loader.command(
         ru_doc="Создать inline кнопку\nНапример: @username_bot crinl Текст сообщения, Текст кнопки, Ссылка в кнопке",
@@ -51,16 +57,25 @@ class InlineButtonMod(loader.Module):
     )
     async def crinl_inline_handler(self, query: InlineQuery):
         args = utils.get_args_raw(query.query)
-        if args:
-            args_list = args.split(",")
-            if len(args_list) == 3:
-                message = args_list[0].strip()
-                name = args_list[1].strip()
-                url = args_list[2].strip()
 
-            return {
-                "title": self.strings("titles"),
-                "description": f"{message}, {name}, {url}",
-                "message": message,
-                "reply_markup": [{"text": name, "url": url}],
-            }
+        if args:
+            args_list = [arg.strip() for arg in args.split(",")]
+
+            if len(args_list) == 3:
+                message, name, url = args_list
+
+                return {
+                    "title": self.strings("titles"),
+                    "description": f"{message}, {name}, {url}",
+                    "message": message,
+                    "reply_markup": [{
+                        "text": name,
+                        "url": url
+                    }]
+                }
+
+        return {
+            "title": self.strings("error_title"),
+            "description": self.strings("error_description"),
+            "message": self.strings("error_message"),
+        }

@@ -32,7 +32,7 @@ import subprocess
 import re
 import tempfile
 import time
-from hikkatl.types import Message
+
 from .. import loader, utils
 
 
@@ -63,7 +63,7 @@ class VoiceDL(loader.Module):
         ru_doc=" [reply] — загружает выбранное голосовое сообщение в виде файла mp3 и кидает его в чат.",
         en_doc=" [reply] — downloads the selected voice message as an MP3 file and sends it in the chat.",
     )
-    async def voicedl(self, message: Message):
+    async def voicedl(self, message):
         reply = await message.get_reply_message()
 
         if reply:

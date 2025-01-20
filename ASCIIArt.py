@@ -28,9 +28,10 @@
 # ---------------------------------------------------------------------------------
 
 import os
+import tempfile
 
 from PIL import Image
-from .. import loader, utils 
+from .. import loader, utils
 
 
 @loader.tds
@@ -73,12 +74,17 @@ class ASCIIArtMod(loader.Module):
 
     def _is_image(self, reply):
         """Проверка, является ли ответ изображением"""
-        return reply and (reply.photo or (reply.document and reply.file.mime_type.startswith("image/")))
+        return reply and (
+            reply.photo
+            or (reply.document and reply.file.mime_type.startswith("image/"))
+        )
 
     async def _generate_ascii_art(self, reply):
         """Генерирует ASCII-арт из изображения"""
         try:
-            image_path = await reply.download_media()
+            image_path = await reply.download_media(tempfile.gettempdir())
+            if not image_path:
+                return None
             with Image.open(image_path) as img:
                 img = img.convert("L")
                 img = img.resize(self._get_new_dimensions(img), Image.NEAREST)
@@ -87,11 +93,17 @@ class ASCIIArtMod(loader.Module):
                 pixels = img.getdata()
 
                 ascii_str = "".join(chars[pixel // 25] for pixel in pixels)
-                return "\n".join(ascii_str[i:i + img.width] for i in range(0, len(ascii_str), img.width))
+                return "\n".join(
+                    ascii_str[i : i + img.width]
+                    for i in range(0, len(ascii_str), img.width)
+                )
 
         except Exception as e:
-            print(f"Ошибка: {e}")
+            print(f"Error generating ASCII art: {e}")
             return None
+        finally:
+            if image_path and os.path.exists(image_path):
+                os.remove(image_path)
 
     def _get_new_dimensions(self, img):
         """Получаем новые размеры для изображения"""
@@ -101,16 +113,21 @@ class ASCIIArtMod(loader.Module):
         return new_width, new_height
 
     async def _send_ascii_file(self, message, ascii_art):
-        """Сохраняет ASCII-арт в файл и отправляет его"""
-        file_path = "/tmp/ascii_art.txt"
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write(ascii_art)
+        """Сохраняет ASCII-арт во временный файл и отправляет его"""
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode="w", encoding="utf-8", suffix=".txt", delete=False
+            ) as tmp_file:
+                tmp_file_path = tmp_file.name
+                tmp_file.write(ascii_art)
 
-        await message.client.send_file(
-            message.chat_id,
-            file_path,
-            caption=self.strings("done"),
-            force_document=True,
-            reply_to=getattr(message, "reply_to_msg_id", None),
-        )
-        os.remove(file_path)
+            await message.client.send_file(
+                message.chat_id,
+                tmp_file_path,
+                caption=self.strings("done"),
+                force_document=True,
+                reply_to=getattr(message, "reply_to_msg_id", None),
+            )
+        finally:
+            if tmp_file_path and os.path.exists(tmp_file_path):
+                os.remove(tmp_file_path)

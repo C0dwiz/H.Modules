@@ -31,8 +31,6 @@ import random
 from ..inline.types import InlineQuery
 from .. import loader, utils
 
-__version__ = (1, 0, 0)
-
 
 @loader.tds
 class CoinSexMod(loader.Module):

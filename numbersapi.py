@@ -18,7 +18,7 @@
 
 # ---------------------------------------------------------------------------------
 # Name: NumbersAPI
-# Description: Many interesting facts about numbers. Idea @FurryMods
+# Description: Many interesting facts about numbers.
 # Author: @hikka_mods
 # ---------------------------------------------------------------------------------
 # meta developer: @hikka_mods
@@ -26,38 +26,37 @@
 # scope: NumbersAPI 0.0.1
 # ---------------------------------------------------------------------------------
 
-import requests
-
+import aiohttp
 from datetime import datetime
-from .. import loader, utils
 
-__version__ = (1, 0, 0)
+from .. import loader, utils
 
 
 async def get_fact_about_number(number, fact_type):
     url = f"http://numbersapi.com/{number}/{fact_type}"
-    response = requests.get(url)
 
-    if response.status_code == 200:
-        return response.text
-    else:
-        return "Извините, не удалось получить факт."
-
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            if response.status == 200:
+                return await response.text()
+            else:
+                return "Извините, не удалось получить факт."
 
 async def get_fact_about_date(month, day):
     date_str = datetime.now().replace(month=month, day=day).strftime("%m/%d")
     url = f"http://numbersapi.com/{date_str}/date"
-    response = requests.get(url)
 
-    if response.status_code == 200:
-        return response.text
-    else:
-        return "Извините, не удалось получить факт."
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            if response.status == 200:
+                return await response.text()
+            else:
+                return "Извините, не удалось получить факт."
 
 
 @loader.tds
 class NumbersAPI(loader.Module):
-    """Many interesting facts about numbers. idea @FurryMods"""
+    """Many interesting facts about numbers."""
 
     strings = {"name": "NumbersAPI"}
 
@@ -68,15 +67,26 @@ class NumbersAPI(loader.Module):
     async def num(self, message):
         args = utils.get_args_raw(message).split()
 
-        if len(args) >= 2:
-            num_or_date = args[0]
-            fact_type = args[1]
-            if "." in num_or_date:
-                month, day = map(int, num_or_date.split("."))
-                result = get_fact_about_date(month, day)
-            else:
-                number = int(num_or_date)
-                result = get_fact_about_number(number, fact_type)
-            await utils.answer(message, f"{result}")
-        else:
+        if len(args) < 2:
             await utils.answer(message, "Использование: .num <число или дата> <тип>")
+            return
+
+        num_or_date = args[0]
+        fact_type = args[1]
+
+        if "." in num_or_date:
+        try:
+                month, day = map(int, num_or_date.split("."))
+                result = await get_fact_about_date(month, day)
+            except ValueError:
+                await utils.answer(message, "Ошибка: некорректный формат даты. Используйте: месяц.день")
+                return
+        else:
+            try:
+                number = int(num_or_date)
+                result = await get_fact_about_number(number, fact_type)
+            except ValueError:
+                await utils.answer(message, "Ошибка: некорректный ввод числа.")
+            return
+
+        await utils.answer(message, result)

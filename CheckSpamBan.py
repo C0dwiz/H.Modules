@@ -38,14 +38,22 @@ class SpamBanCheckMod(loader.Module):
     strings = {
         "name": "CheckSpamBan",
         "svo": "Your account is free from any restrictions.",
-        "good": "<b>Everything is fine!You don't have a spam ban.</b>",
-        "spamban": "<b>Unfortunately, your account has received a spam ban...\n\n{kk}\n\n{ll}</b>",
+        "good": "<b>Everything is fine! You don't have a spam ban.</b>",
+        "spamban": "<b>Unfortunately, your account has received a spam ban...\n\nReason: {reason}\nDuration: {duration}</b>",
+        "spam_bot_error": "<b>Failed to communicate with @SpamBot. Please try again later.</b>",
+        "no_bot": "<b>Can't find @SpamBot. Make sure you have started a chat with this bot.</b>",
+        "bot_not_started": "<b>It seems you haven't started a chat with @SpamBot. Please start a chat and try again.</b>",
+        "checking": "<b>Checking your account for spam ban...</b>",
     }
 
     strings_ru = {
         "svo": "Ваш аккаунт свободен от каких-либо ограничений.",
-        "good": "<b>Все прекрасно!\nУ вас нет спам бана.</b>",
-        "spamban": "<b>К сожалению ваш аккаунт получил спам-бан...\n\n{kk}\n\n{ll}</b>",
+        "good": "<b>Все прекрасно! У вас нет спам бана.</b>",
+        "spamban": "<b>К сожалению, ваш аккаунт получил спам-бан...\n\nПричина: {reason}\nДлительность: {duration}</b>",
+        "spam_bot_error": "<b>Не удалось связаться с @SpamBot. Пожалуйста, попробуйте позже.</b>",
+        "no_bot": "<b>Не могу найти @SpamBot. Убедитесь, что вы начали чат с этим ботом.</b>",
+        "bot_not_started": "<b>Похоже, вы не начали чат с @SpamBot. Пожалуйста, начните чат и попробуйте еще раз.</b>",
+        "checking": "<b>Проверяю ваш аккаунт на наличие спам-бана...</b>",
     }
 
     @loader.command(
@@ -53,23 +61,43 @@ class SpamBanCheckMod(loader.Module):
         en_doc="Checks your account for spam ban via @SpamBot bot",
     )
     async def spambancmd(self, message):
+        await utils.answer(message, self.strings("checking"))
         try:
-            response = self._client.conversation("@SpamBot")
+            bot_user = await self._client.get_entity("SpamBot")
+            if not isinstance(bot_user, User):
+                await utils.answer(message, self.strings("no_bot"))
+                return
 
-            last_message = response.messages[0]
+            async with self._client.conversation("@SpamBot") as conv:
+                try:
+                    response = await conv.send_message("/start")
+                    if response:
+                        await conv.get_response()
 
-            if last_message.message.startswith("/start"):
-                if last_message.message.endswith(self.strings("svo")):
-                    reply_text = self.strings("good")
-                else:
-                    lines = last_message.message.split("\n")
-                    ban_reason = lines[2]
-                    ban_duration = lines[4]
-                    reply_text = self.strings("spamban").format(
-                        kk=ban_reason, ll=ban_duration
-                    )
+                        last_message = (await conv.get_history(limit=1))[0]
+
+                        if last_message.message.startswith("/start"):
+                            if last_message.message.endswith(self.strings("svo")):
+                                reply_text = self.strings("good")
+                            else:
+                                lines = last_message.message.split("\n")
+                                if len(lines) >= 5:
+                                    ban_reason = lines[2].strip()
+                                    ban_duration = lines[4].strip()
+                                    reply_text = self.strings("spamban").format(
+                                        reason=ban_reason, duration=ban_duration
+                                    )
+                                else:
+                                    reply_text = self.strings("spam_bot_error")
+                        else:
+                            reply_text = self.strings("bot_not_started")
+                    else:
+                        reply_text = self.strings("spam_bot_error")
+
                     await utils.answer(message, reply_text)
-            else:
-                await utils.answer(message, self.strings("spam_bot_error"))
+                except ChatAdminRequiredError:
+                    await utils.answer(message, self.strings("bot_not_started"))
+                except Exception as e:
+                    await utils.answer(message, self.strings("spam_bot_error"))
         except Exception as e:
             await utils.answer(message, self.strings("spam_bot_error"))

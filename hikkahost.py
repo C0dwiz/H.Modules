@@ -30,9 +30,8 @@ import aiohttp
 import asyncio
 import json
 from datetime import datetime, timedelta, timezone
-from .. import loader, utils
 
-__version__ = (1, 0, 0)
+from .. import loader, utils
 
 
 class HostApi:

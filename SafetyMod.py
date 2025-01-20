@@ -31,8 +31,6 @@ import string
 
 from .. import loader, utils
 
-__version__ = (1, 0, 0)
-
 
 def generate_password(
     length: int, letters: bool = True, numbers: bool = True, symbols: bool = True

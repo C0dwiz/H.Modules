@@ -16,37 +16,24 @@
 
 # For any inquiries or requests for permissions, please contact codwiz@yandex.ru.
 
+# ---------------------------------------------------------------------------------
 # Name: Text2File
 # Description: Module for convertation your text to file
-# Author: @nervousmods
-# Commands:
-# .ttf
+# Author: @hikka_mods
 # ---------------------------------------------------------------------------------
-# -----------------------------------------------------------------------------------
-# meta developer: @nervousmods, @hikka_mods
-# scope: hikka_only
-# scope: hikka_min 1.4.2
-# -----------------------------------------------------------------------------------
+# meta developer: @hikka_mods
+# scope: Text2File
+# scope: Text2File 0.0.1
+# ---------------------------------------------------------------------------------
 
 import io
 
 from .. import loader, utils
 
-__version__ = (1, 0, 0)
-
 
 @loader.tds
 class Text2File(loader.Module):
     """Module for convertation your text to file"""
-
-    def __init__(self):
-        self.config = loader.ModuleConfig(
-            loader.ConfigValue(
-                "name",
-                "file.txt",
-                lambda: self.strings("cfg_name"),
-            ),
-        )
 
     strings = {
         "name": "Text2File",
@@ -58,6 +45,15 @@ class Text2File(loader.Module):
         "no_args": "Недостаточно аргументов! Используйте: .ttf текст/код",
         "cfg_name": "Вы можете выбрать расширение и название для файла",
     }
+
+    def __init__(self):
+        self.config = loader.ModuleConfig(
+            loader.ConfigValue(
+                "name",
+                "file.txt",
+                lambda: self.strings("cfg_name"),
+            ),
+        )
 
     @loader.command(
         ru_doc="Создать файл с вашим текстом или кодом",

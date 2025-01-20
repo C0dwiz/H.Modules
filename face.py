@@ -24,14 +24,12 @@
 # meta developer: @hikka_mods
 # scope: Api face
 # scope: Api face 0.0.1
-# requires: requests
+# requires: aiohttp
 # ---------------------------------------------------------------------------------
 
-import requests
+import aiohttp
 
 from .. import loader, utils
-
-__version__ = (1, 0, 0)
 
 
 @loader.tds
@@ -46,6 +44,7 @@ class face(loader.Module):
         "random_face": (
             "<emoji document_id=5208878706717636743>🗿</emoji> Here is your random one kaomoji\n<code>{}</code>"
         ),
+        "error": "An error has occurred!",
     }
 
     strings_ru = {
@@ -55,6 +54,7 @@ class face(loader.Module):
         "random_face": (
             "<emoji document_id=5208878706717636743>🗿</emoji> Вот ваш рандомный kaomoji\n<code>{}</code>"
         ),
+        "error": "Произошла ошибка!",
     }
 
     @loader.command(
@@ -63,6 +63,14 @@ class face(loader.Module):
     )
     async def rfacecmd(self, message):
         await utils.answer(message, self.strings("loading"))
-        response = requests.get("https://vsecoder.dev/api/faces")
-        random_face = response.json()["data"]
-        await utils.answer(message, self.strings("random_face").format(random_face))
+
+        url = "https://vsecoder.dev/api/faces"
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    random_face = data["data"]
+                    await utils.answer(message, self.strings("random_face").format(random_face))
+                else:
+                    await utils.answer(message, self.strings("error"))

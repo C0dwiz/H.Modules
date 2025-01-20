@@ -29,9 +29,8 @@
 from urllib.parse import quote
 
 from ..inline.types import InlineCall, InlineQuery
-from .. import loader, utils
 
-__version__ = (1, 0, 0)
+from .. import loader, utils
 
 
 @loader.tds

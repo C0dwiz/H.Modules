@@ -45,6 +45,7 @@ class GigaChatMod(loader.Module):
             "<emoji document_id=6030848053177486888>❓</emoji> Query: {}\n"
             "<emoji document_id=6030400221232501136>🤖</emoji> GigaChat: {}"
         ),
+        "giga_model": "List of GigaChat models:\n{}",
     }
 
     strings_ru = {
@@ -56,20 +57,29 @@ class GigaChatMod(loader.Module):
             "<emoji document_id=6030848053177486888>❓</emoji> Запрос: {}\n"
             "<emoji document_id=6030400221232501136>🤖</emoji> GigaChat: {}"
         ),
+        "giga_model": "Список моделей GigaChat:\n{}",
     }
 
     def __init__(self):
         self.config = loader.ModuleConfig(
-            "GIGACHAT_API_KEY",
-            None,
-            "Введите ваш API ключ для GigaChat, Чтобы получить ключ API, перейдите сюда: https://developers.sber.ru/studio/workspaces",
+            loader.ConfigValue(
+                "GIGACHAT_API_KEY",
+                None,
+                "Введите ваш API ключ для GigaChat, Чтобы получить ключ API, перейдите сюда: https://developers.sber.ru/studio/workspaces",
+                validator=loader.validators.Hidden(),
+            ),
+            loader.ConfigValue(
+                "GIGACHAT_MODEL",
+                "GigaChat",
+                "Введите модель, ее можно получить при команде .gigamodel",
+            ),
         )
 
     @loader.command(
         ru_doc="Получите исчерпывающий ответ на свой вопрос",
         en_doc="Get GigaResponse to your question",
     )
-    async def gigacmd(self, message):
+    async def giga(self, message):
         api_key = self.config["GIGACHAT_API_KEY"]
         if not api_key:
             return await utils.answer(message, self.strings("api_key_missing"))
@@ -89,12 +99,47 @@ class GigaChatMod(loader.Module):
         except Exception as e:
             await utils.answer(message, self.strings("error_occurred").format(str(e)))
 
+    @loader.command(
+        ru_doc="Получите исчерпывающий ответ на свой вопрос",
+        en_doc="Get GigaResponse to your question",
+    )
+    async def gigamodel(self, message):
+        api_key = self.config["GIGACHAT_API_KEY"]
+        if not api_key:
+            return await utils.answer(message, self.strings("api_key_missing"))
+
+        try:
+            response = await self.get_giga_models(api_key)
+            if response:
+                await utils.answer(message, self.strings("giga_model").format(response))
+            else:
+                await utils.answer(message, self.strings("response_error"))
+        except Exception as e:
+            await utils.answer(message, self.strings("error_occurred").format(str(e)))
+
     async def get_giga_response(self, api_key, query):
         """Gets a response from GigaChat with the specified query."""
         async with GigaChat(
-            credentials=api_key, scope="GIGACHAT_API_PERS", verify_ssl_certs=False
+            credentials=api_key,
+            scope="GIGACHAT_API_PERS",
+            model=self.config["GIGACHAT_MODEL"],
+            verify_ssl_certs=False,
         ) as giga:
             response = giga.chat(query)
             if response.choices:
                 return response.choices[0].message.content
+            return None
+
+    async def get_giga_models(self, api_key):
+        """Gets a response from GigaChat with the specified query."""
+        async with GigaChat(
+            credentials=api_key, scope="GIGACHAT_API_PERS", verify_ssl_certs=False
+        ) as giga:
+            response = giga.get_models()
+            if response:
+                return (
+                    [model.id_ for model in response.data]
+                    if hasattr(response, "data")
+                    else []
+                )
             return None

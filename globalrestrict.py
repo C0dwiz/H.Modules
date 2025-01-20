@@ -67,8 +67,6 @@ from telethon.tl.types import (
 
 from .. import loader, utils
 
-__version__ = (1, 0, 0)
-
 BANNED_RIGHTS = {
     "view_messages": False,
     "send_messages": False,

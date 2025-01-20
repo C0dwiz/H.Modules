@@ -26,18 +26,20 @@
 # scope: KBSwapper 0.0.1
 # ---------------------------------------------------------------------------------
 
+
 import string
 
 from .. import loader, utils
 
+
 EN_TO_RU = str.maketrans(
-    "qwertyuiop[]asdfghjkl;'zxcvbnm,./" + 'QWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>?',
-    "йцукенгшщзхъфывапролджэячсмитьбю." + "ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,",
+    "qwertyuiop[]asdfghjkl;'zxcvbnm,./`" + 'QWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>?~',
+    "йцукенгшщзхъфывапролджэячсмитьбю.ё" + "ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,Ё",
 )
 
 RU_TO_EN = str.maketrans(
-    "йцукенгшщзхъфывапролджэячсмитьбю." + "ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,",
-    "qwertyuiop[]asdfghjkl;'zxcvbnm,./" + 'QWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>?',
+    "йцукенгшщзхъфывапролджэячсмитьбю.ё" + "ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,Ё",
+    "qwertyuiop[]asdfghjkl;'zxcvbnm,./`" + 'QWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>?~',
 )
 
 
@@ -47,14 +49,18 @@ class KBSwapperMod(loader.Module):
 
     strings = {
         "name": "KBSwapper",
-        "no_reply": "<emoji document_id=5774077015388852135>❌</emoji> <b>Пожалуйста, ответьте на сообщение.</b>",
-        "original_message": "<emoji document_id=5260450573768990626>➡️</emoji> <b>Original message:</b> {original}",
-        "fixed_message": "<emoji document_id=5774022692642492953>✅</emoji> <b>Fixed message:</b> {fixed}",
+        "no_reply": "<emoji document_id=5774077015388852135>❌</emoji> <b>Please reply to a message.</b>",
+        "no_text": "<emoji document_id=5774077015388852135>❌</emoji> <b>The replied message does not contain text.</b>",
+        "original_message": "<emoji document_id=5260450573768990626>➡️</emoji> <b>Original message:</b>\n<code>{original}</code>",
+        "fixed_message": "<emoji document_id=5774022692642492953>✅</emoji> <b>Fixed message:</b>\n<code>{fixed}</code>",
+        "error": "<emoji document_id=5774077015388852135>❌</emoji> <b>An error occurred while processing the message.</b>",
     }
     strings_ru = {
         "no_reply": "<emoji document_id=5774077015388852135>❌</emoji> <b>Пожалуйста, ответьте на сообщение.</b>",
-        "original_message": "<emoji document_id=5260450573768990626>➡️</emoji> <b>Оригинальное сообщение:</b> {original}",
-        "fixed_message": "<emoji document_id=5774022692642492953>✅</emoji> <b>Исправленное сообщение:</b> {fixed}",
+        "no_text": "<emoji document_id=5774077015388852135>❌</emoji> <b>Отвеченное сообщение не содержит текста.</b>",
+        "original_message": "<emoji document_id=5260450573768990626>➡️</emoji> <b>Оригинальное сообщение:</b>\n<code>{original}</code>",
+        "fixed_message": "<emoji document_id=5774022692642492953>✅</emoji> <b>Исправленное сообщение:</b>\n<code>{fixed}</code>",
+        "error": "<emoji document_id=5774077015388852135>❌</emoji> <b>Произошла ошибка при обработке сообщения.</b>",
     }
 
     @loader.command(
@@ -69,21 +75,26 @@ class KBSwapperMod(loader.Module):
 
         original_text = reply.text
         if not original_text:
-            await utils.answer(message, self.strings("no_reply"))
+            await utils.answer(message, self.strings("no_text"))
             return
 
-        if original_text[0].lower() in string.ascii_lowercase:
-            fixed_text = original_text.translate(EN_TO_RU)
-        else:
-            fixed_text = original_text.translate(RU_TO_EN)
+        try:
+            first_char = original_text[0].lower()
+            if first_char in string.ascii_lowercase:
+                fixed_text = original_text.translate(EN_TO_RU)
+            elif first_char in "йцукенгшщзхъфывапролджэячсмитьбю.ё":
+                fixed_text = original_text.translate(RU_TO_EN)
+            else:
+                fixed_text = original_text
 
-        if message.sender_id == reply.sender_id:
-            await reply.edit(fixed_text)
-        else:
-            await utils.answer(
-                message,
-                "{}\n{}".format(
-                    self.strings("original_message").format(original=original_text),
-                    self.strings("fixed_message").format(fixed=fixed_text),
-                ),
-            )
+            if message.sender_id == reply.sender_id:
+                await reply.edit(fixed_text)
+            else:
+                await utils.answer(
+                    message,
+                    f"{self.strings('original_message').format(original=original_text)}\n"
+                    f"{self.strings('fixed_message').format(fixed=fixed_text)}",
+                )
+        except Exception as e:
+            print(f"Error during swap: {e}")
+            await utils.answer(message, self.strings("error"))

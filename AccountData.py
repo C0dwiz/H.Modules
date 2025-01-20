@@ -26,10 +26,8 @@
 # scope: Api AccountData 0.0.1
 # ---------------------------------------------------------------------------------
 
-import requests
+import aiohttp
 from .. import loader, utils
-
-__version__ = (1, 0, 0)
 
 
 async def get_creation_date(tg_id: int) -> str:
@@ -42,11 +40,14 @@ async def get_creation_date(tg_id: int) -> str:
         "accept-language": "en-US,en;q=0.9",
     }
     data = {"telegramId": tg_id}
-    response = requests.post(url, headers=headers, json=data)
-    if response.status_code == 200:
-        return response.json()["data"]["date"]
-    else:
-        return "Ошибка получения данных"
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, headers=headers, json=data) as response:
+            if response.status == 200:
+                json_response = await response.json()
+                return json_response["data"]["date"]
+            else:
+                return "Ошибка получения данных"
 
 
 @loader.tds

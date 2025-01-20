@@ -27,15 +27,13 @@
 # scope: Жаконизатор 0.0.1
 # ---------------------------------------------------------------------------------
 
+import aiohttp
 import io
-import requests
-from textwrap import wrap
-
 from PIL import Image, ImageDraw, ImageFont
+from textwrap import wrap
 
 from .. import loader, utils
 
-__version__ = (1, 0, 0)
 
 
 @loader.tds
@@ -69,11 +67,9 @@ class JacquesMod(loader.Module):
         en_doc="<reply to the message/your own text>",
     )
     async def ionicmd(self, message):
-        ufr = requests.get(self.config["font"]).content
-        f = ufr
-
         reply = await message.get_reply_message()
         args = utils.get_args_raw(message)
+
         if not args:
             if not reply:
                 await utils.answer(message, self.strings("usage", message))
@@ -81,30 +77,33 @@ class JacquesMod(loader.Module):
             else:
                 txt = reply.raw_text
         else:
-            txt = utils.get_args_raw(message)
-        pic = requests.get(
-            "https://raw.githubusercontent.com/Codwizer/ReModules/main/assets/IMG_20231128_152538.jpg"
-        )
-        pic.raw.decode_content = True
-        img = Image.open(io.BytesIO(pic.content)).convert("RGB")
+            txt = args
 
-        W, H = img.size
-        text = "\n".join(wrap(txt, 19))
-        t = text + "\n"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(self.config["font"]) as font_response:
+                font_data = await font_response.read()
+
+            async with session.get("https://raw.githubusercontent.com/Codwizer/ReModules/main/assets/IMG_20231128_152538.jpg") as pic_response:
+                pic_data = await pic_response.read()
+
+        img = Image.open(io.BytesIO(pic_data)).convert("RGB")
+
+        wrapped_text = "\n".join(wrap(txt, 19)) + "\n"
         draw = ImageDraw.Draw(img)
-        font = ImageFont.truetype(io.BytesIO(f), 32, encoding="UTF-8")
-        w, h = draw.multiline_textsize(t, font=font)
-        imtext = Image.new("RGBA", (w + 10, h + 10), (0, 0, 0, 0))
-        draw = ImageDraw.Draw(imtext)
-        draw.multiline_text(
-            (10, 10), t, (0, 0, 0), font=font, align=self.config["location"]
-        )
+        font = ImageFont.truetype(io.BytesIO(font_data), 32, encoding="UTF-8")
+
+        text_size = draw.multiline_textsize(wrapped_text, font=font)
+        imtext = Image.new("RGBA", (text_size[0] + 10, text_size[1] + 10), (0, 0, 0, 0))
+        draw_imtext = ImageDraw.Draw(imtext)
+        draw_imtext.multiline_text((10, 10), wrapped_text, (0, 0, 0), font=font, align=self.config["location"])
+
         imtext.thumbnail((350, 195))
-        w, h = 350, 195
         img.paste(imtext, (10, 10), imtext)
+
         out = io.BytesIO()
         out.name = "hikka_mods.jpg"
         img.save(out)
         out.seek(0)
+
         await message.client.send_file(message.to_id, out, reply_to=reply)
         await message.delete()

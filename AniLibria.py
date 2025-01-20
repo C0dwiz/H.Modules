@@ -34,7 +34,6 @@ from anilibria import AniLibriaClient
 from .. import loader
 
 ani_client = AniLibriaClient()
-__version__ = (1, 0, 0)
 
 
 @loader.tds

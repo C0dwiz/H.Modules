@@ -16,17 +16,15 @@
 
 # For any inquiries or requests for permissions, please contact codwiz@yandex.ru.
 
-# Name: Profile
-# Description: Module for changing profile data.
-# Author: @nervousmods
-# Commands:
-# .name | .about | .user
 # ---------------------------------------------------------------------------------
-# -----------------------------------------------------------------------------------
-# meta developer: @nervousmods, @hikka_mods
-# scope: hikka_only
-# scope: hikka_min 1.5.0
-# -----------------------------------------------------------------------------------
+# Name: Profile
+# Description: This module can change your Telegram profile
+# Author: @hikka_mods
+# ---------------------------------------------------------------------------------
+# meta developer: @hikka_mods
+# scope: Profile
+# scope: Profile 0.0.1
+# ---------------------------------------------------------------------------------
 
 from telethon.errors.rpcerrorlist import UsernameOccupiedError
 from telethon.tl.functions.account import (
@@ -34,8 +32,6 @@ from telethon.tl.functions.account import (
     UpdateUsernameRequest,
 )
 from .. import loader, utils
-
-__version__ = (1, 0, 1)
 
 
 @loader.tds

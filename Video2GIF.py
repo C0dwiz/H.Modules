@@ -30,8 +30,6 @@
 import os
 import subprocess
 
-from hikkatl.types import Message
-
 from .. import loader, utils
 
 
@@ -58,7 +56,7 @@ class Video2GIFModule(loader.Module):
         ru_doc="[reply | в одном сообщении с видео] — конвертирует видео в GIF.",
         en_doc="[reply | in one message with video] — Converts video to GIF.",
     )
-    async def gifc(self, message: Message):
+    async def gifc(self, message):
         if reply := await message.get_reply_message():
             video = reply.video
         else:
@@ -84,9 +82,7 @@ class Video2GIFModule(loader.Module):
             subprocess.run(command, check=True)
 
             await message.client.send_file(
-                message.chat_id,
-                gif_path,
-                caption=self.strings["conversion_success"]
+                message.chat_id, gif_path, caption=self.strings["conversion_success"]
             )
 
         except subprocess.CalledProcessError:

@@ -38,8 +38,6 @@ import json
 
 from .. import loader, utils
 
-__version__ = (1, 0, 0)
-
 
 async def get_random_image():
     random_site = random.randint(1, 3389)

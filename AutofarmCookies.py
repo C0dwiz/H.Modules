@@ -68,7 +68,7 @@ class AutofarmCookiesMod(loader.Module):
         self.client = client
         self.db = db
         self.myid = (await client.get_me()).id
-        self.cookies = 5203407003
+        self.cookies = "@cookies_game_bot"
 
     @loader.command(
         ru_doc="Запустить автофарминг",

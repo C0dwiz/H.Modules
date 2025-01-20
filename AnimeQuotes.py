@@ -61,19 +61,22 @@ class AnimeQuotesMod(loader.Module):
         en_doc="Get a random quote from the anime",
     )
     async def quote(self, message):
+        url = "https://animechan.io/api/v1/quotes/random"
+
         try:
-            response = requests.get("https://animechan.io/api/v1/quotes/random")
-            response.raise_for_status()
-            data = response.json()
-            quote_content = data["data"]["content"]
-            character_name = data["data"]["character"]["name"]
-            anime_name = data["data"]["anime"]["name"]
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    response.raise_for_status()
+                    data = await response.json()
 
-            quote = self.strings["quote_template"].format(
-                quote=quote_content, character=character_name, anime=anime_name
-            )
-            await utils.answer(message, quote)
+                    quote_content = data["data"]["content"]
+                    character_name = data["data"]["character"]["name"]
+                    anime_name = data["data"]["anime"]["name"]
 
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Ошибка при получении цитаты: {e}")
+                    quote = self.strings["quote_template"].format(
+                        quote=quote_content, character=character_name, anime=anime_name
+                    )
+                    await utils.answer(message, quote)
+
+        except aiohttp.ClientError as e:
             await utils.answer(message, self.strings["error"])
