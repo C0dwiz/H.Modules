@@ -92,7 +92,7 @@ class DaysToMyBirthday(loader.Module):
                 "birthday_date",
                 None,
                 lambda: "Дата вашего рождения. Указывать только день",
-                validator=loader.validators.Integer(min=1, max=31),
+                validator=loader.validators.Integer(),
             ),
             loader.ConfigValue(
                 "birthday_month",
