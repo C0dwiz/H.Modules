@@ -24,7 +24,7 @@
 # meta developer: @hikka_mods
 # scope: Api AccountData
 # scope: Api AccountData 0.0.1
-# ---------------------------------------------------------------------------------
+# requires: aiohttp ---------------------------------------------------------------------------------
 
 import aiohttp
 from .. import loader, utils
