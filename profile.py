@@ -27,10 +27,7 @@
 # ---------------------------------------------------------------------------------
 
 from telethon.errors.rpcerrorlist import UsernameOccupiedError
-from telethon.tl.functions.account import (
-    UpdateProfileRequest,
-    UpdateUsernameRequest,
-)
+from telethon.tl.functions.account import UpdateProfileRequest, UpdateUsernameRequest
 from .. import loader, utils
 
 
