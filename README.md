@@ -2,7 +2,7 @@
   <img src="https://github.com/Codwizer/ReModules/blob/main/assets/Vector.png" alt="hikka_mods">
 </div>
 
-## ❔ Information
+## ❔ Information repository
 
 <i>Modules for [Hikka](https://github.com/hikariatama/Hikka)</i>
 
