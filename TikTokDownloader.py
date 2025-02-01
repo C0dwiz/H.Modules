@@ -246,15 +246,15 @@ class TikTokDownloader(loader.Module):
     strings = {
         "name": "TikTokDownloader",
         "downloading": "<emoji document_id=5436024756610546212>⚡</emoji> <b>Downloading…</b>",
-        "success_photo": "<emoji document_id=5249417846462634956>💜</emoji> <b>The photo(s) has/have been successfully downloaded!</b>!",
-        "success_video": "<emoji document_id=5249417846462634956>💜</emoji> <b>The video has been successfully downloaded!</b>",
+        "success_photo": "<emoji document_id=5436246187944460315>❤️</emoji> <b>The photo(s) has/have been successfully downloaded!</b>!",
+        "success_video": "<emoji document_id=5436246187944460315>❤️</emoji> <b>The video has been successfully downloaded!</b>",
         "error": "Error occurred while downloading.\n{}",
     }
 
     strings_ru = {
         "downloading": "<emoji document_id=5436024756610546212>⚡</emoji> <b>Загружаем…</b>",
-        "success_photo": "<emoji document_id=5249417846462634956>💜</emoji> <b>Фотография(-и) была(-и) успешно загружены!</b>!",
-        "success_video": "<emoji document_id=5249417846462634956>💜</emoji> <b>Видео было успешно загружено!</b>",
+        "success_photo": "<emoji document_id=5436246187944460315>❤️</emoji> <b>Фотография(-и) была(-и) успешно загружены!</b>!",
+        "success_video": "<emoji document_id=5436246187944460315>❤️</emoji> <b>Видео было успешно загружено!</b>",
         "error": "Во время загрузки произошла ошибка.\n{}",
     }
 
@@ -269,9 +269,10 @@ class TikTokDownloader(loader.Module):
             return
 
         url = args[0]
-        await utils.answer(message, self.strings("downloading"))
+        msg = await utils.answer(message, self.strings("downloading"))
 
         tiktok_downloader = TikTok()
+        await msd.delete()
 
         try:
             download_result = await tiktok_downloader.download(url)
