@@ -269,10 +269,10 @@ class TikTokDownloader(loader.Module):
             return
 
         url = args[0]
-        msg = await utils.answer(message, self.strings("downloading"))
+        await utils.answer(message, self.strings("downloading"))
 
         tiktok_downloader = TikTok()
-        await msd.delete()
+        await message.delete()
 
         try:
             download_result = await tiktok_downloader.download(url)
