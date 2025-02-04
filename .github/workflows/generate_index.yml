@@ -1,0 +1,48 @@
+name: Generate Index Page
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x' 
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: Generate index.html
+        run: |
+          echo "Generating index.html..."
+          echo '<!DOCTYPE html>' > index.html
+          echo '<html>' >> index.html
+          echo '<head><title>My Python Modules</title></head>' >> index.html
+          echo '<body>' >> index.html
+          echo '<h1>My Python Modules</h1>' >> index.html
+          echo '<ul>' >> index.html
+
+          for file in *.py; do
+            filename=$(basename "$file")
+            echo "  <li><a href=\"$filename\">$filename</a></li>" >> index.html
+          done
+
+          echo '</ul>' >> index.html
+          echo '</body>' >> index.html
+          echo '</html>' >> index.html
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: .
