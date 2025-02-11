@@ -26,6 +26,7 @@
 # scope: Api TikTokDownloader 0.0.1
 # ---------------------------------------------------------------------------------
 
+import aiofiles
 import aiohttp
 import asyncio
 import re
@@ -272,15 +273,16 @@ class TikTokDownloader(loader.Module):
         await utils.answer(message, self.strings("downloading"))
 
         tiktok_downloader = TikTok()
-        await message.delete()
 
         try:
             download_result = await tiktok_downloader.download(url)
 
             if download_result.type == "video":
                 await message.client.send_file(message.to_id, download_result.media, caption=self.strings("success_video"))
+                await message.delete()
             elif download_result.type == "images":
                 await message.client.send_file(message.to_id, download_result.media, caption=self.strings("success_photo"))
+                await message.delete()
 
         except Exception as e:
             await utils.answer(message, self.strings("error").format(e))
