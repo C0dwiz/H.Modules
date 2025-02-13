@@ -8,12 +8,11 @@
 
 # 2. Redistribution of the Software, in original or modified form, is strictly prohibited without the explicit written permission of the author.
 
-# 3. The Software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. In no event shall the author or copyright holder be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the Software or the use or other dealings in the Software.
+# 3. The Software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. In no event shall the author or copyright holder be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of or in connection with the Software or the use or other dealings in the Software.
 
 # 4. Any use of the Software must include the above copyright notice and this permission notice in all copies or substantial portions of the Software.
 
 # 5. By using the Software, you agree to be bound by the terms and conditions of this license.
-
 # For any inquiries or requests for permissions, please contact codwiz@yandex.ru.
 
 # ---------------------------------------------------------------------------------
@@ -30,47 +29,46 @@
 import os
 import aiohttp
 import tempfile
+import asyncio
+import logging
+
+from typing import Optional, Dict, Any, List
 
 from .. import loader, utils
 
-__version__ = (1, 0, 0)
+logger = logging.getLogger(__name__)
 
 
 @loader.tds
 class VirusTotalMod(loader.Module):
-    """Checks files for viruses using VirusTotal"""
+    """Checks files for viruses using VirusTotal."""
 
     strings = {
         "name": "VirusTotal",
-        "no_file": "<emoji document_id=5210952531676504517>🚫</emoji> </b>You haven't selected a file.</b>",
-        "download": (
-            "<emoji document_id=5334677912270415274>😑</emoji> </b>Downloading...</b>"
-        ),
-        "skan": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Scanning...</b>",
+        "no_file": "<emoji document_id=5210952531676504517>🚫</emoji> <b>You haven't selected a file.</b>",
+        "download": "<emoji document_id=5334677912270415274>😑</emoji> <b>Downloading...</b>",
+        "scan": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Scanning...</b>",
         "link": "🦠 VirusTotal Link",
         "no_virus": "✅ File is clean.",
         "error": "Scan error.",
         "no_format": "This format is not supported.",
-        "no_apikey": (
-            "<emoji document_id=5260342697075416641>🚫</emoji> You have not specified an API Key"
-        ),
-        "confing": "Нужен токен с www.virustotal.com/gui/my-apikey",
+        "no_apikey": "<emoji document_id=5260342697075416641>🚫</emoji> You have not specified an API Key",
+        "config": "Need a token with www.virustotal.com/gui/my-apikey",
+        "scanning": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Waiting for scan results...</b>",
     }
 
     strings_ru = {
+        "name": "VirusTotal",
         "no_file": "<emoji document_id=5210952531676504517>🚫</emoji> </b>Вы не выбрали файл.</b>",
-        "download": (
-            "<emoji document_id=5334677912270415274>😑</emoji> </b>Скачивание...</b>"
-        ),
-        "skan": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Сканирую...</b>",
+        "download": "<emoji document_id=5334677912270415274>😑</emoji> </b>Скачивание...</b>",
+        "scan": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Сканирую...</b>",
         "link": "🦠 Ссылка на VirusTotal",
         "no_virus": "✅ Файл чист.",
         "error": "Ошибка сканирования.",
         "no_format": "Этот формат не поддерживается.",
-        "no_apikey": (
-            "<emoji document_id=5260342697075416641>🚫</emoji> Вы не указали Api Key"
-        ),
-        "confing": "Need a token with www.virustotal.com/gui/my-apikey",
+        "no_apikey": "<emoji document_id=5260342697075416641>🚫</emoji> Вы не указали Api Key",
+        "config": "Need a token with www.virustotal.com/gui/my-apikey",
+        "scanning": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Ожидание результатов сканирования...</b>",
     }
 
     def __init__(self):
@@ -83,86 +81,238 @@ class VirusTotalMod(loader.Module):
             )
         )
 
+    async def virustotal_request(
+        self,
+        session: aiohttp.ClientSession,
+        url: str,
+        headers: Dict[str, str],
+        method: str = "GET",
+        data: Optional[Dict[str, Any]] = None,
+        files: Optional[Dict[str, Any]] = None,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Generic function to make requests to the VirusTotal API.
+
+        Args:
+            session: aiohttp ClientSession object.
+            url: API endpoint URL.
+            headers: Request headers.
+            method: HTTP method (GET or POST).
+            Request payload (for POST requests).
+            files: Files to upload (for POST requests).
+
+        Returns:
+            Parsed JSON response or None in case of an error.
+        """
+        try:
+            if files:
+                form = aiohttp.FormData()
+                for k, v in files.items():
+                    form.add_field(k, v)
+
+                async with session.request(
+                    method, url, headers=headers, data=form
+                ) as response:
+                    if response.status == 200:
+                        return await response.json()
+                    else:
+                        logger.error(
+                            f"VirusTotal API request failed with status: {response.status}, reason: {response.reason}"
+                        )
+                        return None
+            else:
+                async with session.request(
+                    method, url, headers=headers, json=data
+                ) as response:
+                    if response.status == 200:
+                        return await response.json()
+                    else:
+                        logger.error(
+                            f"VirusTotal API request failed with status: {response.status}, reason: {response.reason}"
+                        )
+                        return None
+
+        except aiohttp.ClientError as e:
+            logger.exception(f"AIOHTTP Client error: {e}")
+            return None
+        except Exception as e:
+            logger.exception(f"An unexpected error occurred: {e}")
+            return None
+
+    async def scan_file_virustotal(
+        self, file_path: str, api_key: str
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Uploads a file to VirusTotal and retrieves the analysis results.
+
+        Args:
+            file_path: Path to the file to scan.
+            api_key: VirusTotal API key.
+
+        Returns:
+            A dictionary containing the analysis results or None in case of an error.
+        """
+        headers = {"x-apikey": api_key}
+        url = "https://www.virustotal.com/api/v3/files"
+
+        async with aiohttp.ClientSession() as session:
+            try:
+                with open(file_path, "rb") as file:
+                    files = {"file": file}
+                    upload_response = await self.virustotal_request(
+                        session, url, headers, method="POST", files=files
+                    )
+
+                    if (
+                        upload_response
+                        and "data" in upload_response
+                        and "id" in upload_response["data"]
+                    ):
+                        analysis_id = upload_response["data"]["id"]
+
+                        # Poll for analysis results
+                        analysis_url = (
+                            f"https://www.virustotal.com/api/v3/analyses/{analysis_id}"
+                        )
+                        for _ in range(10):  # Retry up to 10 times
+                            analysis_response = await self.virustotal_request(
+                                session, analysis_url, headers
+                            )
+                            if (
+                                analysis_response
+                                and "data" in analysis_response
+                                and "attributes" in analysis_response["data"]
+                                and analysis_response["data"]["attributes"].get(
+                                    "status"
+                                )
+                                == "completed"
+                            ):
+                                return analysis_response
+                            await asyncio.sleep(5)  # Wait 5 seconds before retrying
+
+                        logger.warning(
+                            f"Analysis not completed after multiple retries for ID: {analysis_id}"
+                        )
+                        return None
+
+                    else:
+                        logger.error(
+                            f"File upload or analysis request failed: {upload_response}"
+                        )
+                        return None
+
+            except FileNotFoundError:
+                logger.error(f"File not found: {file_path}")
+                return None
+            except Exception as e:
+                logger.exception(f"An error occurred during file scanning: {e}")
+                return None
+
+    def format_analysis_results(
+        self, analysis_results: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Formats the analysis results into a user-friendly message.
+
+        Args:
+            analysis_results: A dictionary containing the analysis results.
+
+        Returns:
+            A dictionary containing formatted text and URL.
+        """
+        if (
+            not analysis_results
+            or "data" not in analysis_results
+            or "attributes" not in analysis_results["data"]
+            or "stats" not in analysis_results["data"]["attributes"]
+        ):
+            logger.warning(
+                f"Unexpected structure in analysis_results: {analysis_results}"
+            )
+            return {"text": self.strings("error"), "url": None}
+
+        stats = analysis_results["data"]["attributes"]["stats"]
+        harmless = stats.get("harmless", 0)
+        malicious = stats.get("malicious", 0)
+        suspicious = stats.get("suspicious", 0)
+        undetected = stats.get("undetected", 0)
+        total_scans = harmless + malicious + suspicious + undetected
+
+        # Use the 'id' field from the analysis response to construct the URL
+        analysis_id = analysis_results["data"]["id"]
+        url = f"https://www.virustotal.com/gui/file-analysis/{analysis_id}"
+
+        # Construct the text summary of the analysis results
+        text = (
+            f"Detections: {malicious} / {total_scans}\n"
+            f"Harmless: {harmless}\n"
+            f"Suspicious: {suspicious}\n"
+            f"Undetected: {undetected}\n\n"
+        )
+
+        # If the file is clean, add the "no_virus" message
+        if malicious == 0 and suspicious == 0:
+            text += self.strings("no_virus")
+
+        return {"text": text, "url": url}
+
     @loader.command(
         ru_doc="<ответ на файл> - Проверяет файлы на наличие вирусов с использованием VirusTotal",
         en_doc="<file response> - Checks files for viruses using VirusTotal",
     )
     async def vt(self, message):
+        """
+        Checks files for viruses using VirusTotal.
+        """
+
         if not message.is_reply:
-            await utils.answer(message, self.strings("no_reply"))
+            await utils.answer(message, self.strings("no_file"))
             return
+
         reply = await message.get_reply_message()
         if not reply.document:
-            await utils.answer(message, self.strings("reply_not_document"))
+            await utils.answer(message, self.strings("no_file"))
             return
-        if not self.config.get("token-vt"):
+
+        api_key = self.config.get("token-vt")
+        if not api_key:
             await utils.answer(message, self.strings("no_apikey"))
             return
 
-        async with aiohttp.ClientSession() as session:
+        file_extension = os.path.splitext(reply.file.name)[1].lower()
+        allowed_extensions = (".jpg", ".png", ".ico", ".mp3", ".mp4", ".gif", ".txt")
+        if file_extension in allowed_extensions:
+            await utils.answer(message, self.strings("no_format"))
+            return
+
+        try:
+            await utils.answer(message, self.strings("download"))
             with tempfile.TemporaryDirectory() as temp_dir:
-                await utils.answer(message, self.strings("download"))
                 file_path = os.path.join(temp_dir, reply.file.name)
                 await reply.download_media(file_path)
-                file_extension = os.path.splitext(reply.file.name)[1].lower()
-                allowed_extensions = (
-                    ".jpg",
-                    ".png",
-                    ".ico",
-                    ".mp3",
-                    ".mp4",
-                    ".gif",
-                    ".txt",
-                )
-                if file_extension not in allowed_extensions:
-                    try:
-                        token = self.config["token-vt"]
-                        headers = {"x-apikey": token}
 
-                        with open(file_path, "rb") as file:
-                            files = {"file": file}
-                            async with session.post(
-                                "https://www.virustotal.com/api/v3/files",
-                                headers=headers,
-                                data=files,
-                            ) as response:
-                                if response.status == 200:
-                                    result = await response.json()
-                                    data_id = result["data"]["id"]
+                await utils.answer(message, self.strings("scan"))
+                analysis_results = await self.scan_file_virustotal(file_path, api_key)
 
-                                    async with session.get(
-                                        f"https://www.virustotal.com/api/v3/analyses/{data_id}",
-                                        headers=headers,
-                                    ) as response:
-                                        if response.status == 200:
-                                            result = await response.json()
-                                            hash = result["meta"]["file_info"]["sha256"]
-                                            detections = []
-                                            for engine, details in result["data"][
-                                                "attributes"
-                                            ]["results"].items():
-                                                if details["category"] == "malicious":
-                                                    detections.append(
-                                                        f"⛔️ {engine}\n ╰ {details['result']}"
-                                                    )
-                                            out = (
-                                                "\n".join(detections)
-                                                if detections
-                                                else self.strings("no_virus")
-                                            )
-                                            url = f"https://www.virustotal.com/gui/file/{hash}/detection"
-                                            await self.inline.form(
-                                                text=f"Detections: {len(detections)} / {len(result['data']['attributes']['results'])}\n\n{out}\n\n",
-                                                message=message,
-                                                reply_markup={
-                                                    "text": self.strings("link"),
-                                                    "url": url,
-                                                },
-                                            )
-                    except Exception as e:
-                        await utils.answer(
-                            message,
-                            self.strings("error") + f"\n\n{type(e).__name__}: {str(e)}",
-                        )
+                if analysis_results:
+                    formatted_results = self.format_analysis_results(
+                        analysis_results
+                    )
+                    await self.inline.form(
+                        text=formatted_results["text"],
+                        message=message,
+                        reply_markup={
+                            "text": self.strings("link"),
+                            "url": formatted_results["url"],
+                        }
+                        if formatted_results["url"]
+                        else None,
+                    )
                 else:
-                    await utils.answer(message, self.strings("no_format"))
+                    await utils.answer(message, self.strings("error"))
+
+        except Exception as e:
+            logger.exception("An error occurred during the VT scan process.")
+            await utils.answer(
+                message, self.strings("error") + f"\n\n{type(e).__name__}: {str(e)}"
+            )
