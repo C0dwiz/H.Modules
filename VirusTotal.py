@@ -50,12 +50,13 @@ class VirusTotalMod(loader.Module):
         "scan": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Scanning...</b>",
         "link": "🦠 VirusTotal Link",
         "no_virus": "✅ File is clean.",
-        "error": "Scan error.",
+        "error": "<emoji document_id=5463193238393274687>⚠️</emoji> Scan error.",
         "no_format": "This format is not supported.",
         "no_apikey": "<emoji document_id=5260342697075416641>🚫</emoji> You have not specified an API Key",
         "config": "Need a token with www.virustotal.com/gui/my-apikey",
         "scanning": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Waiting for scan results...</b>",
         "getting_upload_url": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Getting upload URL...</b>",
+        "analysis_failed": "<emoji document_id=5463193238393274687>⚠️</emoji> Analysis failed after multiple retries."
     }
 
     strings_ru = {
@@ -64,12 +65,13 @@ class VirusTotalMod(loader.Module):
         "scan": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Сканирую...</b>",
         "link": "🦠 Ссылка на VirusTotal",
         "no_virus": "✅ Файл чист.",
-        "error": "Ошибка сканирования.",
+        "error": "<emoji document_id=5463193238393274687>⚠️</emoji> Ошибка сканирования.",
         "no_format": "Этот формат не поддерживается.",
         "no_apikey": "<emoji document_id=5260342697075416641>🚫</emoji> Вы не указали Api Key",
         "config": "Need a token with www.virustotal.com/gui/my-apikey",
         "scanning": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Ожидание результатов сканирования...</b>",
         "getting_upload_url": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Получение URL для загрузки...</b>",
+        "analysis_failed": "<emoji document_id=5463193238393274687>⚠️</emoji> Анализ не удался после нескольких попыток."
     }
 
     def __init__(self):
@@ -93,17 +95,6 @@ class VirusTotalMod(loader.Module):
     ) -> Optional[Dict[str, Any]]:
         """
         Generic function to make requests to the VirusTotal API.
-
-        Args:
-            session: aiohttp ClientSession object.
-            url: API endpoint URL.
-            headers: Request headers.
-            method: HTTP method (GET or POST).
-            Request payload (for POST requests).
-            files: Files to upload (for POST requests).
-
-        Returns:
-            Parsed JSON response or None in case of an error.
         """
         try:
             if files:
@@ -114,6 +105,9 @@ class VirusTotalMod(loader.Module):
                 async with session.request(
                     method, url, headers=headers, data=form
                 ) as response:
+                    logger.debug(f"Response status: {response.status}")
+                    logger.debug(f"Response body: {await response.text()}")
+
                     if response.status == 200:
                         return await response.json()
                     else:
@@ -125,6 +119,9 @@ class VirusTotalMod(loader.Module):
                 async with session.request(
                     method, url, headers=headers, json=data
                 ) as response:
+                    logger.debug(f"Response status: {response.status}")
+                    logger.debug(f"Response body: {await response.text()}")
+
                     if response.status == 200:
                         return await response.json()
                     else:
@@ -143,12 +140,6 @@ class VirusTotalMod(loader.Module):
     async def get_upload_url(self, api_key: str) -> Optional[str]:
         """
         Retrieves a special upload URL for large files.
-
-        Args:
-            api_key: VirusTotal API key.
-
-        Returns:
-            The upload URL as a string, or None in case of an error.
         """
         headers = {"x-apikey": api_key, "accept": "application/json"}
         url = "https://www.virustotal.com/api/v3/files/upload_url"
@@ -156,7 +147,7 @@ class VirusTotalMod(loader.Module):
         async with aiohttp.ClientSession() as session:
             response = await self.virustotal_request(session, url, headers)
 
-            if response and "data" in response and type(response["data"]) is str:
+            if response and "data" in response and isinstance(response["data"], str):
                 return response["data"]
             else:
                 logger.error(f"Failed to retrieve upload URL: {response}")
@@ -167,14 +158,6 @@ class VirusTotalMod(loader.Module):
     ) -> Optional[Dict[str, Any]]:
         """
         Uploads a file to VirusTotal and retrieves the analysis results. Handles files larger than 32MB.
-
-        Args:
-            file_path: Path to the file to scan.
-            api_key: VirusTotal API key.
-            is_large_file: Boolean indicating whether the file is larger than 32MB.
-
-        Returns:
-            A dictionary containing the analysis results or None in case of an error.
         """
         headers = {"x-apikey": api_key}
         url = "https://www.virustotal.com/api/v3/files"
@@ -204,10 +187,11 @@ class VirusTotalMod(loader.Module):
                         analysis_url = (
                             f"https://www.virustotal.com/api/v3/analyses/{analysis_id}"
                         )
-                        for _ in range(10):
+                        for attempt in range(20):
                             analysis_response = await self.virustotal_request(
                                 session, analysis_url, headers
                             )
+                            logger.debug(f"Analysis response (attempt {attempt+1}): {analysis_response}")
                             if (
                                 analysis_response
                                 and "data" in analysis_response
@@ -218,7 +202,7 @@ class VirusTotalMod(loader.Module):
                                 == "completed"
                             ):
                                 return analysis_response
-                            await asyncio.sleep(5)
+                            await asyncio.sleep(10)
 
                         logger.warning(
                             f"Analysis not completed after multiple retries for ID: {analysis_id}"
@@ -238,28 +222,21 @@ class VirusTotalMod(loader.Module):
                 logger.exception(f"An error occurred during file scanning: {e}")
                 return None
 
-    def format_analysis_results(
-        self, analysis_results: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def format_analysis_results(self, analysis_results: Dict[str, Any]) -> str:
         """
-        Formats the analysis results into a user-friendly message.
-
-        Args:
-            analysis_results: A dictionary containing the analysis results.
-
-        Returns:
-            A dictionary containing formatted text and URL.
+        Formats the analysis results into a user-friendly message, including specific detections.
         """
         if (
             not analysis_results
             or "data" not in analysis_results
             or "attributes" not in analysis_results["data"]
             or "stats" not in analysis_results["data"]["attributes"]
+            or "results" not in analysis_results["data"]["attributes"]
         ):
             logger.warning(
                 f"Unexpected structure in analysis_results: {analysis_results}"
             )
-            return {"text": self.strings("error"), "url": None}
+            return self.strings("error")
 
         stats = analysis_results["data"]["attributes"]["stats"]
         harmless = stats.get("harmless", 0)
@@ -267,19 +244,26 @@ class VirusTotalMod(loader.Module):
         suspicious = stats.get("suspicious", 0)
         undetected = stats.get("undetected", 0)
         total_scans = harmless + malicious + suspicious + undetected
-
         analysis_id = analysis_results["data"]["id"]
         url = f"https://www.virustotal.com/gui/file-analysis/{analysis_id}"
 
         text = (
-            f"Detections: {malicious} / {total_scans}\n"
-            f"Harmless: {harmless}\n"
-            f"Suspicious: {suspicious}\n"
-            f"Undetected: {undetected}\n\n"
+            f"<b>📊 VirusTotal Scan Results</b>\n\n"
+            f"🦠 <b>Detections:</b> {malicious} / {total_scans}\n"
+            f"🟢 <b>Harmless:</b> {harmless}\n"
+            f"⚠️ <b>Suspicious:</b> {suspicious}\n"
+            f"❓ <b>Undetected:</b> {undetected}\n\n"
         )
 
-        if malicious == 0 and suspicious == 0:
-            text += self.strings("no_virus")
+        if malicious > 0:
+            text += "<b>⚠️ Detections by engine:</b>\n"
+            results = analysis_results["data"]["attributes"]["results"]
+            for engine, result in results.items():
+                if result["category"] == "malicious":
+                    engine_name = engine.replace("_", " ").title()
+                    text += f"  • <b>{engine_name}:</b> {result['result']}\n"
+
+            text += "\n"
 
         return {"text": text, "url": url}
 
@@ -288,9 +272,6 @@ class VirusTotalMod(loader.Module):
         en_doc="<file response> - Checks files for viruses using VirusTotal",
     )
     async def vt(self, message):
-        """
-        Checks files for viruses using VirusTotal.
-        """
 
         if not message.is_reply:
             await utils.answer(message, self.strings("no_file"))
@@ -333,23 +314,29 @@ class VirusTotalMod(loader.Module):
 
                 if analysis_results:
                     formatted_results = self.format_analysis_results(analysis_results)
-                    await self.inline.form(
-                        text=formatted_results["text"],
-                        message=message,
-                        reply_markup=(
-                            {
+                    try:
+                        await self.inline.form(
+                            text=formatted_results["text"],
+                            message=message,
+                            reply_markup={
                                 "text": self.strings("link"),
                                 "url": formatted_results["url"],
                             }
                             if formatted_results["url"]
-                            else None
-                        ),
-                    )
+                            else None,
+                        )
+                    except Exception as e:
+                        logger.error(f"Error displaying inline results: {e}")
+                        await utils.answer(
+                            message,
+                            self.strings("error_report").format(formatted_results["url"]),
+                        )
+
                 else:
-                    await utils.answer(message, self.strings("error"))
+                    await utils.answer(message, self.strings("analysis_failed"))
 
         except Exception as e:
             logger.exception("An error occurred during the VT scan process.")
             await utils.answer(
                 message, self.strings("error") + f"\n\n{type(e).__name__}: {str(e)}"
-            )
+                )
