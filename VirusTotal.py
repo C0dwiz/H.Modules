@@ -32,7 +32,7 @@ import tempfile
 import asyncio
 import logging
 
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 
 from .. import loader, utils
 
@@ -55,10 +55,10 @@ class VirusTotalMod(loader.Module):
         "no_apikey": "<emoji document_id=5260342697075416641>🚫</emoji> You have not specified an API Key",
         "config": "Need a token with www.virustotal.com/gui/my-apikey",
         "scanning": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Waiting for scan results...</b>",
+        "getting_upload_url": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Getting upload URL...</b>",
     }
 
     strings_ru = {
-        "name": "VirusTotal",
         "no_file": "<emoji document_id=5210952531676504517>🚫</emoji> </b>Вы не выбрали файл.</b>",
         "download": "<emoji document_id=5334677912270415274>😑</emoji> </b>Скачивание...</b>",
         "scan": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Сканирую...</b>",
@@ -69,6 +69,7 @@ class VirusTotalMod(loader.Module):
         "no_apikey": "<emoji document_id=5260342697075416641>🚫</emoji> Вы не указали Api Key",
         "config": "Need a token with www.virustotal.com/gui/my-apikey",
         "scanning": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Ожидание результатов сканирования...</b>",
+        "getting_upload_url": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Получение URL для загрузки...</b>",
     }
 
     def __init__(self):
@@ -139,15 +140,38 @@ class VirusTotalMod(loader.Module):
             logger.exception(f"An unexpected error occurred: {e}")
             return None
 
+    async def get_upload_url(self, api_key: str) -> Optional[str]:
+        """
+        Retrieves a special upload URL for large files.
+
+        Args:
+            api_key: VirusTotal API key.
+
+        Returns:
+            The upload URL as a string, or None in case of an error.
+        """
+        headers = {"x-apikey": api_key, "accept": "application/json"}
+        url = "https://www.virustotal.com/api/v3/files/upload_url"
+
+        async with aiohttp.ClientSession() as session:
+            response = await self.virustotal_request(session, url, headers)
+
+            if response and "data" in response and type(response["data"]) is str:
+                return response["data"]
+            else:
+                logger.error(f"Failed to retrieve upload URL: {response}")
+                return None
+
     async def scan_file_virustotal(
-        self, file_path: str, api_key: str
+        self, file_path: str, api_key: str, is_large_file: bool = False
     ) -> Optional[Dict[str, Any]]:
         """
-        Uploads a file to VirusTotal and retrieves the analysis results.
+        Uploads a file to VirusTotal and retrieves the analysis results. Handles files larger than 32MB.
 
         Args:
             file_path: Path to the file to scan.
             api_key: VirusTotal API key.
+            is_large_file: Boolean indicating whether the file is larger than 32MB.
 
         Returns:
             A dictionary containing the analysis results or None in case of an error.
@@ -159,6 +183,13 @@ class VirusTotalMod(loader.Module):
             try:
                 with open(file_path, "rb") as file:
                     files = {"file": file}
+                    if is_large_file:
+                        upload_url = await self.get_upload_url(api_key)
+                        if not upload_url:
+                            logger.error("Failed to get upload URL for large file.")
+                            return None
+                        url = upload_url
+
                     upload_response = await self.virustotal_request(
                         session, url, headers, method="POST", files=files
                     )
@@ -170,11 +201,10 @@ class VirusTotalMod(loader.Module):
                     ):
                         analysis_id = upload_response["data"]["id"]
 
-                        # Poll for analysis results
                         analysis_url = (
                             f"https://www.virustotal.com/api/v3/analyses/{analysis_id}"
                         )
-                        for _ in range(10):  # Retry up to 10 times
+                        for _ in range(10):
                             analysis_response = await self.virustotal_request(
                                 session, analysis_url, headers
                             )
@@ -188,7 +218,7 @@ class VirusTotalMod(loader.Module):
                                 == "completed"
                             ):
                                 return analysis_response
-                            await asyncio.sleep(5)  # Wait 5 seconds before retrying
+                            await asyncio.sleep(5)
 
                         logger.warning(
                             f"Analysis not completed after multiple retries for ID: {analysis_id}"
@@ -238,11 +268,9 @@ class VirusTotalMod(loader.Module):
         undetected = stats.get("undetected", 0)
         total_scans = harmless + malicious + suspicious + undetected
 
-        # Use the 'id' field from the analysis response to construct the URL
         analysis_id = analysis_results["data"]["id"]
         url = f"https://www.virustotal.com/gui/file-analysis/{analysis_id}"
 
-        # Construct the text summary of the analysis results
         text = (
             f"Detections: {malicious} / {total_scans}\n"
             f"Harmless: {harmless}\n"
@@ -250,7 +278,6 @@ class VirusTotalMod(loader.Module):
             f"Undetected: {undetected}\n\n"
         )
 
-        # If the file is clean, add the "no_virus" message
         if malicious == 0 and suspicious == 0:
             text += self.strings("no_virus")
 
@@ -291,22 +318,32 @@ class VirusTotalMod(loader.Module):
                 file_path = os.path.join(temp_dir, reply.file.name)
                 await reply.download_media(file_path)
 
+                file_size = os.path.getsize(file_path)
+                is_large_file = (
+                    file_size > 32 * 1024 * 1024
+                )
+
+                if is_large_file:
+                    await utils.answer(message, self.strings("getting_upload_url"))
                 await utils.answer(message, self.strings("scan"))
-                analysis_results = await self.scan_file_virustotal(file_path, api_key)
+
+                analysis_results = await self.scan_file_virustotal(
+                    file_path, api_key, is_large_file
+                )
 
                 if analysis_results:
-                    formatted_results = self.format_analysis_results(
-                        analysis_results
-                    )
+                    formatted_results = self.format_analysis_results(analysis_results)
                     await self.inline.form(
                         text=formatted_results["text"],
                         message=message,
-                        reply_markup={
-                            "text": self.strings("link"),
-                            "url": formatted_results["url"],
-                        }
-                        if formatted_results["url"]
-                        else None,
+                        reply_markup=(
+                            {
+                                "text": self.strings("link"),
+                                "url": formatted_results["url"],
+                            }
+                            if formatted_results["url"]
+                            else None
+                        ),
                     )
                 else:
                     await utils.answer(message, self.strings("error"))
