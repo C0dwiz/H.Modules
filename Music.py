@@ -19,15 +19,18 @@
 # ---------------------------------------------------------------------------------
 # Name: Music
 # Description: Searches for music using Telegram music bots.
-# Author: @hikka_mods ---------------------------------------------------------------------------------
+# Author: @hikka_mods
 # meta developer: @hikka_mods
 # scope: Music
 # scope: Music 0.0.2
 # ---------------------------------------------------------------------------------
 
+# Thanks to @murpizz for the search code yandex
+
 import logging
 
 from telethon.errors.rpcerrorlist import BotMethodInvalidError, FloodWaitError, MessageNotModifiedError
+from telethon.tl.types import Message
 
 from .. import loader, utils
 
@@ -36,135 +39,146 @@ logger = logging.getLogger(__name__)
 
 @loader.tds
 class MusicMod(loader.Module):
-    """Searches for music using Telegram music bots."""
-
     strings = {
         "name": "Music",
-        "no_query": "<emoji document_id=5337117114392127164>🤷‍♂</emoji> <b>Please provide a search query.</b>",
+        "no_query": "<emoji document_id=5337117114392127164>🤷‍♂</emoji> <b>Provide a search query.</b>",
         "searching": "<emoji document_id=4918235297679934237>⌨️</emoji> <b>Searching...</b>",
         "found": "<emoji document_id=5336965905773504919>🗣</emoji> <b>Possible match:</b>",
-        "not_found": "<emoji document_id=5228947933545635555>😫</emoji> <b>No track found with the title <code>{}</code>.</b>",
-        "invalid_service": "<emoji document_id=5462295343642956603>🚫</emoji> <b>Invalid service. Supported services: yandex, vk.</b>",
+        "not_found": "<emoji document_id=5228947933545635555>😫</emoji> <b>Track not found: <code>{}</code>.</b>",
+        "invalid_service": "<emoji document_id=5462295343642956603>🚫</emoji> <b>Invalid service. (yandex, vk)</b>",
         "usage": "<b>Usage:</b> <code>.music [yandex|vk] [track name]</code>",
-        "error": "<emoji document_id=5228947933545635555>⚠️</emoji> <b>An error occurred:</b> <code>{}</code>",
-        "no_results": "<emoji document_id=5228947933545635555>😫</emoji> <b>The bot returned no results for <code>{}</code>.</b>",
-        "flood_wait": "<emoji document_id=5462295343642956603>⏳</emoji> <b>Please wait {} seconds before trying again due to Telegram rate limits.</b>",
-        "bot_error": "<emoji document_id=5228947933545635555>🤖</emoji> <b>The bot encountered an error: <code>{}</code></b>",
-        "no_audio": "<emoji document_id=5228947933545635555>🎵</emoji> <b>Result does not contain audio or document.</b>",
-        "generic_result": "<emoji document_id=5336965905773504919>ℹ️</emoji> <b>Bot returned a non-media result.  Check the bot's chat.</b>",
+        "error": "<emoji document_id=5228947933545635555>⚠️</emoji> <b>Error:</b> <code>{}</code>",
+        "no_results": "<emoji document_id=5228947933545635555>😫</emoji> <b>No results: <code>{}</code>.</b>",
+        "flood_wait": "<emoji document_id=5462295343642956603>⏳</emoji> <b>Wait {}s (Telegram limits).</b>",
+        "bot_error": "<emoji document_id=5228947933545635555>🤖</emoji> <b>Bot error: <code>{}</code></b>",
+        "no_audio": "<emoji document_id=5228947933545635555>🎵</emoji> <b>No audio.</b>",
+        "generic_result": "<emoji document_id=5336965905773504919>ℹ️</emoji> <b>Non-media result. Check the bot's chat.</b>",
+        "yafind_searching": "<emoji document_id=5258396243666681152>🔎</emoji> <b>Searching Yandex.Music...</b>",
+        "yafind_not_found": "<emoji document_id=5843952899184398024>🚫</emoji> <b>Track not found on Yandex.Music.</b>",
+        "yafind_error": "<emoji document_id=5843952899184398024>🚫</emoji> <b>Error (Yandex): {}</b>",
     }
 
     strings_ru = {
-        "no_query": "<emoji document_id=5337117114392127164>🤷‍♂</emoji> <b>Укажите поисковой запрос.</b>",
+        "name": "Music",
+        "no_query": "<emoji document_id=5337117114392127164>🤷‍♂</emoji> <b>Укажите запрос.</b>",
         "searching": "<emoji document_id=4918235297679934237>⌨️</emoji> <b>Поиск...</b>",
-        "found": "<emoji document_id=5336965905773504919>🗣</emoji> <b>Возможно, это то, что вы искали:</b>",
-        "not_found": "<emoji document_id=5228947933545635555>😫</emoji> <b>Не удалось найти трек с названием <code>{}</code>.</b>",
-        "invalid_service": "<emoji document_id=5462295343642956603>🚫</emoji> <b>Неверный сервис. Поддерживаемые сервисы: yandex, vk.</b>",
+        "found": "<emoji document_id=5336965905773504919>🗣</emoji> <b>Возможно, это оно:</b>",
+        "not_found": "<emoji document_id=5228947933545635555>😫</emoji> <b>Трек не найден: <code>{}</code>.</b>",
+        "invalid_service": "<emoji document_id=5462295343642956603>🚫</emoji> <b>Неверный сервис. (yandex, vk)</b>",
         "usage": "<b>Использование:</b> <code>.music [yandex|vk] [название трека]</code>",
-        "error": "<emoji document_id=5228947933545635555>⚠️</emoji> <b>Произошла ошибка:</b> <code>{}</code>",
-        "no_results": "<emoji document_id=5228947933545635555>😫</emoji> <b>Бот не вернул результатов для запроса <code>{}</code>.</b>",
-        "flood_wait": "<emoji document_id=5462295343642956603>⏳</emoji> <b>Пожалуйста, подождите {} секунд перед повторной попыткой из-за ограничений Telegram.</b>",
-        "bot_error": "<emoji document_id=5228947933545635555>🤖</emoji> <b>Бот столкнулся с ошибкой: <code>{}</code></b>",
-        "no_audio": "<emoji document_id=5228947933545635555>🎵</emoji> <b>В результате нет аудио или документа.</b>",
-        "generic_result": "<emoji document_id=5336965905773504919>ℹ️</emoji> <b>Бот вернул немедийный результат. Проверьте чат с ботом.</b>",
+        "error": "<emoji document_id=5228947933545635555>⚠️</emoji> <b>Ошибка:</b> <code>{}</code>",
+        "no_results": "<emoji document_id=5228947933545635555>😫</emoji> <b>Нет результатов: <code>{}</code>.</b>",
+        "flood_wait": "<emoji document_id=5462295343642956603>⏳</emoji> <b>Подождите {}с (лимиты Telegram).</b>",
+        "bot_error": "<emoji document_id=5228947933545635555>🤖</emoji> <b>Ошибка бота: <code>{}</code></b>",
+        "no_audio": "<emoji document_id=5228947933545635555>🎵</emoji> <b>Нет аудио.</b>",
+        "generic_result": "<emoji document_id=5336965905773504919>ℹ️</emoji> <b>Немедийный результат. Проверьте чат с ботом.</b>",
+        "yafind_searching": "<emoji document_id=5258396243666681152>🔎</emoji> <b>Поиск в Яндекс.Музыке...</b>",
+        "yafind_not_found": "<emoji document_id=5843952899184398024>🚫</emoji> <b>Трек не найден в Яндекс.Музыке.</b>",
+        "yafind_error": "<emoji document_id=5843952899184398024>🚫</emoji> <b>Ошибка (Яндекс): {}</b>",
     }
 
     def __init__(self):
-        self.yandex_bot_username = "@YaMusRobot"
-        self.vk_bot_username = "@vkmusic_bot"
-        self.bot_names = {
-            "yandex": self.yandex_bot_username,
-            "vk": self.vk_bot_username,
-        }
+        self.murglar_bot = "@murglar_bot"
+        self.vk_bot = "@vkmusic_bot"
 
     @loader.command(
-        ru_doc="Найти трек по названию в Yandex Music или VK: `.music yandex {название}` или `.music vk {название}`",
-        en_doc="Find a track by name in Yandex Music or VK: `.music yandex {name}` or `.music vk {name}`",
+        ru_doc="Найти трек в Yandex Music или VK: `.music yandex {название}` или `.music vk {название}`",
+        en_doc="Find a track in Yandex Music or VK: `.music yandex {name}` or `.music vk {name}`",
     )
     async def music(self, message):
-        """Searches for music in Yandex Music or VK using Telegram bots."""
         args = utils.get_args(message)
-        reply = await message.get_reply_message()
 
-        if len(args) < 2:
-            return await utils.answer(message, self.strings("usage", message))
+        if not args:
+            if reply := await message.get_reply_message():
+                await self._yafind(message, reply.raw_text.strip())
+            else:
+                await utils.answer(message, self.strings("usage", message))
+            return
 
-        service = args[0].lower()
-        query = " ".join(args[1:])
+        service, query = args[0].lower(), " ".join(args[1:])
 
-        if service not in self.bot_names:
-            return await utils.answer(message, self.strings("invalid_service", message))
+        if service == "yandex":
+            await self._yafind(message, query)
+        elif service == "vk":
+            await self._vkfind(message, query)
+        else:
+            await utils.answer(message, self.strings("invalid_service", message))
 
-        bot = self.bot_names[service]
-
+    async def _yafind(self, message: Message, query: str):
         if not query:
             return await utils.answer(message, self.strings("no_query", message))
 
+        await utils.answer(message, self.strings("yafind_searching", message))
+
         try:
-            await utils.answer(message, self.strings("searching", message))
+            results = await message.client.inline_query(self.murglar_bot, f"s:ynd {query}")
 
-            if service == "yandex":
-                query = query + " ."
+            if not results:
+                return await utils.answer(message, self.strings("yafind_not_found", message))
 
-            try:
-                music = await self.client.inline_query(bot, query)
-            except BotMethodInvalidError as e:
-                logger.error(f"Bot {bot} returned an invalid method error: {e}")
-                return await utils.answer(message, self.strings("bot_error", message).format(e))
-            except FloodWaitError as e:
-                logger.warning(f"Flood wait error: {e.seconds} seconds")
-                return await utils.answer(message, self.strings("flood_wait", message).format(e.seconds))
-
-            if not music:
-                return await utils.answer(
-                    message, self.strings("no_results", message).format(query)
-                )
-
-            if len(music) <= 1:
-                return await utils.answer(
-                    message, self.strings("not_found", message).format(query)
-                )
-
-            sent = False
-            for i in range(1, len(music), 2):
-                try:
-                    if hasattr(music[i].result, 'audio') and music[i].result.audio:
-                        await self.client.send_file(
-                            message.to_id,
-                            music[i].result.audio,
-                            caption=self.strings("found", message),
-                            reply_to=utils.get_topic(message) if reply else None,
-                        )
-                        await message.delete()
-                        sent = True
-                        break
-                    elif hasattr(music[i].result, 'document') and music[i].result.document:
-                        await self.client.send_file(
-                            message.to_id,
-                            music[i].result.document,
-                            caption=self.strings("found", message),
-                            reply_to=utils.get_topic(message) if reply else None,
-                        )
-                        await message.delete()
-                        sent = True
-                        break
-                    else:
-                        logger.warning(f"No audio or document found in result {i}")
-                        await utils.answer(message, self.strings("no_audio", message)) 
-                        await message.delete()
-                        sent = True
-                        break
-                except MessageNotModifiedError:
-                    logger.warning("MessageNotModifiedError: Could not edit message, skipping.")
-                except Exception as e:
-                    logger.error(f"Error sending file: {e}")
-                    continue
-
-            if not sent:
-                await utils.answer(
-                    message, self.strings("not_found", message).format(query)
-                )
+            await results[0].click(
+                entity=message.chat_id,
+                hide_via=True,
+                reply_to=message.reply_to_msg_id if message.reply_to_msg_id else None
+            )
+            await message.delete()
 
         except Exception as e:
-            logger.exception("Error during music search:")
+            logger.exception("Yandex search error:")
+            await utils.answer(message, self.strings("yafind_error", message).format(e))
+
+    async def _vkfind(self, message, query: str):
+        if not query:
+            return await utils.answer(message, self.strings("no_query", message))
+
+        await utils.answer(message, self.strings("searching", message))
+
+        try:
+            music = await message.client.inline_query(self.vk_bot, query)
+
+            if not music or len(music) <= 1:
+                return await utils.answer(message, self.strings("not_found", message).format(query))
+
+            for i in range(1, len(music), 2):
+                try:
+                    result = music[i].result
+                    if hasattr(result, "audio") and result.audio:
+                        await message.client.send_file(
+                            message.to_id,
+                            result.audio,
+                            caption=self.strings("found", message),
+                            reply_to=utils.get_topic(message) if message.reply_to_msg_id else None,
+                        )
+                        await message.delete()
+                        return
+                    if hasattr(result, "document") and result.document:
+                        await message.client.send_file(
+                            message.to_id,
+                            result.document,
+                            caption=self.strings("found", message),
+                            reply_to=utils.get_topic(message) if message.reply_to_msg_id else None,
+                        )
+                        await message.delete()
+                        return
+
+                    logger.warning(f"No audio/document in result {i}")
+                    await utils.answer(message, self.strings("no_audio", message))
+                    await message.delete()
+                    return
+
+                except MessageNotModifiedError:
+                    logger.warning("MessageNotModifiedError, skipping.")
+                except Exception as e:
+                    logger.error(f"Send error: {e}")
+
+            await utils.answer(message, self.strings("not_found", message).format(query))
+
+        except BotMethodInvalidError as e:
+            logger.error(f"VK bot error: {e}")
+            await utils.answer(message, self.strings("bot_error", message).format(e))
+        except FloodWaitError as e:
+            logger.warning(f"Flood wait: {e.seconds}s")
+            await utils.answer(message, self.strings("flood_wait", message).format(e.seconds))
+        except Exception as e:
+            logger.exception("VK search error:")
             await utils.answer(message, self.strings("error", message).format(e))
