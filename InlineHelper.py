@@ -114,7 +114,7 @@ class InlineHelperMod(loader.Module):
         self.db.set(main.__name__, "command_prefix", ".")
         await call.edit(self.strings("res_prefix"))
 
-    @loader.command(
+    @loader.inline_handler(
         ru_doc="Перезагрузить юзербота",
         en_doc="Reboot the userbot",
     )
@@ -131,7 +131,7 @@ class InlineHelperMod(loader.Module):
             ],
         }
 
-    @loader.command(
+    @loader.inline_handler(
         ru_doc="Обновить юзербота",
         en_doc="Update the userbot",
     )
@@ -148,7 +148,7 @@ class InlineHelperMod(loader.Module):
             ],
         }
 
-    @loader.command(
+    @loader.inline_handler(
         ru_doc="Выполнить команду в терминале (лучше сразу подготовить команду и просто вставить)",
         en_doc="Execute the command in the terminal (it is better to prepare the command immediately and just paste it)",
     )
@@ -171,7 +171,7 @@ class InlineHelperMod(loader.Module):
             ),
         }
 
-    @loader.command(
+    @loader.inline_handler(
         ru_doc="Вывести список установленных модулей через инлайн",
         en_doc="Display a list of installed modules via the inline",
     )
@@ -191,7 +191,7 @@ class InlineHelperMod(loader.Module):
             "message": result,
         }
 
-    @loader.command(
+    @loader.inline_handler(
         ru_doc="Сбросить префикс (осторожнее, сбрасывает ваш префикс на . )",
         en_doc="Reset the prefix (be careful, resets your prefix to . )",
     )
