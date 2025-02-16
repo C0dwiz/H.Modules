@@ -57,35 +57,35 @@ class Search(loader.Module):
         en_doc="Search on Google",
     )
     async def google(self, message):
-        await search_engine(self, message, "https://google.com/search?q=")
+        await self.search_engine(self, message, "https://google.com/search?q=")
 
     @loader.command(
         ru_doc="Поискать в Yandex",
         en_doc="Search on Yandex",
     )
     async def yandex(self, message):
-        await search_engine(self, message, "https://yandex.ru/?q=")
+        await self.search_engine(self, message, "https://yandex.ru/?q=")
 
     @loader.command(
         ru_doc="Поискать в Duckduckgo",
         en_doc="Search on Duckduckgo",
     )
     async def duckduckgo(self, message):
-        await search_engine(self, message, "https://duckduckgo.com/?q=")
+        await self.search_engine(self, message, "https://duckduckgo.com/?q=")
 
     @loader.command(
         ru_doc="Поискать в Bing",
         en_doc="Search on Bing",
     )
     async def bing(self, message):
-        await search_engine(self, message, "https://bing.com/?q=")
+        await self.search_engine(self, message, "https://bing.com/?q=")
 
     @loader.command(
         ru_doc="Поискать в You",
         en_doc="Search on You",
     )
     async def you(self, message):
-        await search_engine(self, message, "https://you.com/?q=")
+        await self.search_engine(self, message, "https://you.com/?q=")
 
     async def search_engine(self, message, base_url: str) -> None:
         """Searches on a given search engine."""
