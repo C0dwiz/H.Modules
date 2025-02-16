@@ -30,3 +30,4 @@ profile
 search
 shortener
 AnimeQuotes
+TempChat
