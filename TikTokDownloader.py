@@ -249,7 +249,7 @@ class TikTokDownloader(loader.Module):
         "downloading": "<emoji document_id=5436024756610546212>⚡</emoji> <b>Downloading…</b>",
         "success_photo": "<emoji document_id=5436246187944460315>❤️</emoji> <b>The photo(s) has/have been successfully downloaded!</b>!",
         "success_video": "<emoji document_id=5436246187944460315>❤️</emoji> <b>The video has been successfully downloaded!</b>",
-        "success_video": "<emoji document_id=5436246187944460315>❤️</emoji> <b>The sound has been successfully downloaded!</b>",
+        "success_sound": "<emoji document_id=5436246187944460315>❤️</emoji> <b>The sound has been successfully downloaded!</b>",
         "error": "Error occurred while downloading.\n{}",
     }
 
