@@ -249,6 +249,7 @@ class TikTokDownloader(loader.Module):
         "downloading": "<emoji document_id=5436024756610546212>⚡</emoji> <b>Downloading…</b>",
         "success_photo": "<emoji document_id=5436246187944460315>❤️</emoji> <b>The photo(s) has/have been successfully downloaded!</b>!",
         "success_video": "<emoji document_id=5436246187944460315>❤️</emoji> <b>The video has been successfully downloaded!</b>",
+        "success_video": "<emoji document_id=5436246187944460315>❤️</emoji> <b>The sound has been successfully downloaded!</b>",
         "error": "Error occurred while downloading.\n{}",
     }
 
@@ -256,8 +257,35 @@ class TikTokDownloader(loader.Module):
         "downloading": "<emoji document_id=5436024756610546212>⚡</emoji> <b>Загружаем…</b>",
         "success_photo": "<emoji document_id=5436246187944460315>❤️</emoji> <b>Фотография(-и) была(-и) успешно загружены!</b>!",
         "success_video": "<emoji document_id=5436246187944460315>❤️</emoji> <b>Видео было успешно загружено!</b>",
+        "success_sound": "<emoji document_id=5436246187944460315>❤️</emoji> <b>Звук был успешно загружен!</b>",
         "error": "Во время загрузки произошла ошибка.\n{}",
     }
+
+    @loader.command(
+        ru_doc="Скачать звук с TikTok",
+        en_doc="Download sound from TikTok",
+    )
+    async def ttsound(self, message):
+       args = utils.get_args(message)
+       if not args:
+           await utils.answer(message, "Please provide a TikTok URL.")
+           return
+       
+       url = args[0]
+       await utils.answer(message, self.strings("downloading"))
+       
+       tiktok_downloader = TikTok()
+       
+       try:
+           download_result = await tiktok_downloader.download_sound(url)
+           await message.client.send_file(message.to_id, download_result, caption=self.strings("success_sound"))
+           await message.delete()
+       except Exception as e:
+           await utils.answer(message, f'{self.strings("error").format(e)}\n Убедитесь, что ссылка ведет именно на видео или фото с нужным звуком, прямая ссылка на звук не сработает!')
+       finally:
+           await tiktok_downloader.close_session()
+           
+
 
     @loader.command(
         ru_doc="Скачать видео или фото с TikTok",
