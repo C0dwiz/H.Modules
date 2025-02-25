@@ -24,7 +24,7 @@
 # meta developer: @hikka_mods
 # scope: AniLibria
 # scope: AniLibria 0.0.1
-# requires: anilibria.py
+# requires: git+https://github.com/C0dwiz/anilibria.py.git
 # ---------------------------------------------------------------------------------
 
 from ..inline.types import InlineQuery
@@ -61,8 +61,6 @@ class AniLibriaMod(loader.Module):
 
     link = "https://anilibria.tv"
 
-    async def client_ready(self, client, db) -> None:
-        self._client = client
 
     @loader.command(
         ru_doc="Возвращает случайный тайтл из базы",
@@ -109,7 +107,7 @@ class AniLibriaMod(loader.Module):
             silent=True,
         )
 
-    @loader.command(
+    @loader.inline_handler(
         ru_doc="Возвращает список найденных по названию тайтлов",
         en_doc="Returns a list of titles found by name",
     )
