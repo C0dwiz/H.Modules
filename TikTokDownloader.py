@@ -202,7 +202,7 @@ class TikTok:
         return audio_filename
 
     async def download(
-        self, link: Union[str], video_filename: Optional[str] = None, hd: bool = False
+        self, link: Union[str], video_filename: Optional[str] = None, hd: bool = True
     ) -> data:
         """
         Asynchronously downloads a TikTok video or photo post.
@@ -304,7 +304,7 @@ class TikTokDownloader(loader.Module):
         tiktok_downloader = TikTok()
 
         try:
-            download_result = await tiktok_downloader.download(url, True)
+            download_result = await tiktok_downloader.download(url)
 
             if download_result.type == "video":
                 await message.client.send_file(
