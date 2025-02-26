@@ -26,7 +26,6 @@
 # scope: InlineButton 0.0.1
 # ---------------------------------------------------------------------------------
 
-import asyncio
 from ..inline.types import InlineQuery
 
 from .. import loader, utils

@@ -26,7 +26,6 @@
 # scope: Api TikTokDownloader 0.0.1
 # ---------------------------------------------------------------------------------
 
-import aiofiles
 import aiohttp
 import asyncio
 import re
@@ -37,10 +36,8 @@ import logging
 
 from dataclasses import dataclass
 from urllib.parse import urljoin
-from typing import Union, Optional, Literal, List
+from typing import Union, Optional, List
 from tqdm import tqdm
-from bs4 import BeautifulSoup
-import requests
 from .. import loader, utils
 
 
@@ -129,10 +126,11 @@ class TikTok:
 
         async with self.session.get(video_url) as response:
             response.raise_for_status()
-            total_size = int(response.headers.get('content-length', 0))
-            with open(video_filename, 'wb') as file:
-                with tqdm(total=total_size, unit='B', unit_scale=True,
-                                                         desc=video_filename) as pbar:
+            total_size = int(response.headers.get("content-length", 0))
+            with open(video_filename, "wb") as file:
+                with tqdm(
+                    total=total_size, unit="B", unit_scale=True, desc=video_filename
+                ) as pbar:
                     async for chunk in response.content.iter_any():
                         file.write(chunk)
                         pbar.update(len(chunk))
@@ -266,26 +264,29 @@ class TikTokDownloader(loader.Module):
         en_doc="Download sound from TikTok",
     )
     async def ttsound(self, message):
-       args = utils.get_args(message)
-       if not args:
-           await utils.answer(message, "Please provide a TikTok URL.")
-           return
-       
-       url = args[0]
-       await utils.answer(message, self.strings("downloading"))
-       
-       tiktok_downloader = TikTok()
-       
-       try:
-           download_result = await tiktok_downloader.download_sound(url)
-           await message.client.send_file(message.to_id, download_result, caption=self.strings("success_sound"))
-           await message.delete()
-       except Exception as e:
-           await utils.answer(message, f'{self.strings("error").format(e)}\n Убедитесь, что ссылка ведет именно на видео или фото с нужным звуком, прямая ссылка на звук не сработает!')
-       finally:
-           await tiktok_downloader.close_session()
-           
+        args = utils.get_args(message)
+        if not args:
+            await utils.answer(message, "Please provide a TikTok URL.")
+            return
 
+        url = args[0]
+        await utils.answer(message, self.strings("downloading"))
+
+        tiktok_downloader = TikTok()
+
+        try:
+            download_result = await tiktok_downloader.download_sound(url)
+            await message.client.send_file(
+                message.to_id, download_result, caption=self.strings("success_sound")
+            )
+            await message.delete()
+        except Exception as e:
+            await utils.answer(
+                message,
+                f"{self.strings('error').format(e)}\n Убедитесь, что ссылка ведет именно на видео или фото с нужным звуком, прямая ссылка на звук не сработает!",
+            )
+        finally:
+            await tiktok_downloader.close_session()
 
     @loader.command(
         ru_doc="Скачать видео или фото с TikTok",
@@ -303,13 +304,21 @@ class TikTokDownloader(loader.Module):
         tiktok_downloader = TikTok()
 
         try:
-            download_result = await tiktok_downloader.download(url)
+            download_result = await tiktok_downloader.download(url, True)
 
             if download_result.type == "video":
-                await message.client.send_file(message.to_id, download_result.media, caption=self.strings("success_video"))
+                await message.client.send_file(
+                    message.to_id,
+                    download_result.media,
+                    caption=self.strings("success_video"),
+                )
                 await message.delete()
             elif download_result.type == "images":
-                await message.client.send_file(message.to_id, download_result.media, caption=self.strings("success_photo"))
+                await message.client.send_file(
+                    message.to_id,
+                    download_result.media,
+                    caption=self.strings("success_photo"),
+                )
                 await message.delete()
 
         except Exception as e:

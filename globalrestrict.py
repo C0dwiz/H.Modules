@@ -42,27 +42,11 @@ import re
 import time
 import typing
 
-from telethon.tl.functions.channels import (
-    JoinChannelRequest,
-    EditAdminRequest,
-    EditBannedRequest,
-    GetFullChannelRequest,
-    GetParticipantRequest,
-    InviteToChannelRequest,
-)
-from telethon.tl.functions.messages import EditChatDefaultBannedRightsRequest
 from telethon.tl.types import (
     Channel,
-    ChannelParticipantCreator,
     Chat,
-    ChatAdminRights,
-    ChatBannedRights,
-    DocumentAttributeAnimated,
     Message,
-    MessageEntitySpoiler,
-    MessageMediaUnsupported,
     User,
-    UserStatusOnline,
 )
 
 from .. import loader, utils
@@ -339,7 +323,6 @@ class GlobalRestrict(loader.Module):
                 int(getattr(user, "id", user)),
             )
         except Exception:
-            logger.debug("Can't ban with bot", exc_info=True)
 
             await self._client.edit_permissions(
                 chat,
@@ -373,7 +356,6 @@ class GlobalRestrict(loader.Module):
                 int(getattr(user, "id", user)),
             )
         except Exception:
-            logger.debug("Can't ban with bot", exc_info=True)
 
             await self._client.edit_permissions(
                 chat,

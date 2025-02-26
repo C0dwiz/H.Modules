@@ -29,7 +29,6 @@
 
 import os
 import subprocess
-
 from .. import loader, utils
 
 
@@ -45,11 +44,11 @@ class Video2GIFModule(loader.Module):
         "loading": "⏳ Conversion is underway",
     }
 
-    strings_ru = {
-        "conversion_success": "🎉 Конвертация завершена!",
-        "conversion_error": "❌ Произошла ошибка при конвертации видео в GIF.",
-        "not_video": "⚠️ Пожалуйста, ответьте на сообщение с видео или отправьте видео в одном сообщении.",
-        "loading": "⏳ Идёт конвертация",
+    strings = {
+        "conversion_success": "🎉 Преобразование завершено!",
+        "conversion_error": "❌ Произошла ошибка при преобразовании видео в GIF.",
+        "not_video": "⚠️ Пожалуйста, ответьте на сообщение с видео или отправьте видео одним сообщением.",
+        "loading": "⏳ Идет преобразование",
     }
 
     @loader.command(
@@ -57,10 +56,7 @@ class Video2GIFModule(loader.Module):
         en_doc="[reply | in one message with video] — Converts video to GIF.",
     )
     async def gifc(self, message):
-        if reply := await message.get_reply_message():
-            video = reply.video
-        else:
-            video = message.video
+        video = await self.get_video_from_message(message)
 
         if not video:
             await utils.answer(message, self.strings["not_video"])
@@ -71,24 +67,38 @@ class Video2GIFModule(loader.Module):
         gif_path = f"{os.path.splitext(video_path)[0]}.gif"
 
         try:
-            command = [
-                "ffmpeg",
-                "-i",
-                video_path,
-                "-vf",
-                "fps=25,scale=640:-1:flags=lanczos",
-                gif_path,
-            ]
-            subprocess.run(command, check=True)
-
+            self.convert_video_to_gif(video_path, gif_path)
             await message.client.send_file(
                 message.chat_id, gif_path, caption=self.strings["conversion_success"]
             )
-
-        except subprocess.CalledProcessError:
+        except Exception as e:
             await utils.answer(message, self.strings["conversion_error"])
-
+            print(f"Error during conversion: {e}")
         finally:
-            for temp_file in [video_path, gif_path]:
-                if os.path.exists(temp_file):
-                    os.remove(temp_file)
+            self.cleanup_temp_files(video_path, gif_path)
+
+    async def get_video_from_message(self, message):
+        """Получает видео из сообщения."""
+        if reply := await message.get_reply_message():
+            return reply.video
+        return message.video
+
+    def convert_video_to_gif(self, video_path: str, gif_path: str) -> None:
+        """Конвертирует видео в GIF с улучшенными параметрами."""
+        command = [
+            "ffmpeg",
+            "-i",
+            video_path,
+            "-vf",
+            "fps=30,scale=640:-1:flags=lanczos",
+            "-c:v",
+            "gif",
+            gif_path,
+        ]
+        subprocess.run(command, check=True)
+
+    def cleanup_temp_files(self, video_path: str, gif_path: str) -> None:
+        """Удаляет временные файлы."""
+        for temp_file in [video_path, gif_path]:
+            if os.path.exists(temp_file):
+                os.remove(temp_file)

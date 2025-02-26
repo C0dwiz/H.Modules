@@ -27,16 +27,11 @@
 # scope: Meme 0.0.1
 # ---------------------------------------------------------------------------------
 
-import asyncio
-from urllib.parse import quote_plus
-from datetime import datetime
 from bs4 import BeautifulSoup
 import aiohttp
 import random
-import urllib.request
-import json
 
-from .. import loader, utils
+from .. import loader
 
 
 async def get_random_image():

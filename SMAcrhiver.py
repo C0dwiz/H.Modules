@@ -29,9 +29,7 @@
 
 import zipfile
 import os
-
 from datetime import datetime
-
 from .. import loader, utils
 
 
@@ -49,9 +47,9 @@ class SMArchiver(loader.Module):
 
     strings_ru = {
         "archive_created": "🎉 Архив с сообщениями успешно создан: {filename}",
-        "no_messages": "⚠️ В Избранном нет сообщений.",
+        "no_messages": "⚠️ В Сохраненных сообщениях нет сообщений.",
         "error": "❌ Произошла ошибка: {error}",
-        "processing": "🛠️ Обработка сообщений... Пожалуйста, подождите.\n\nP.S: Будьте осторожны, если у вас много сообщений то вы можете получить флудвейт, и ещё если у вас много тяжёлых файлов то загрузка будет медленнее чем обычно.",
+        "processing": "🛠️ Обработка сообщений... Пожалуйста, подождите.\n\nP.S: Будьте осторожны, если у вас много сообщений, вы можете получить флуд, а если у вас много тяжелых файлов, загрузка будет медленнее обычного.",
     }
 
     @loader.command(
@@ -60,70 +58,92 @@ class SMArchiver(loader.Module):
     )
     async def smdump(self, message):
         await utils.answer(message, self.strings["processing"])
-
         saved_messages = await message.client.get_messages("me", limit=None)
 
         if not saved_messages:
-            await utils.answer(message, "Нет сообщений для выгрузки.")
+            await utils.answer(message, self.strings["no_messages"])
             return
 
-        current_month = datetime.now().strftime("%B %Y")
-        archive_path = "saved_messages.zip"
+        archive_path = self.create_archive(saved_messages)
 
         try:
-            with zipfile.ZipFile(archive_path, "w") as archive:
-                month_folder = f"{current_month}/"
-                archive.writestr(month_folder, "")
-
-
-                message_folders = {
-                    "Text Messages": f"{month_folder}Text Messages/",
-                    "Voice Messages": f"{month_folder}Voice Messages/",
-                    "Video Messages": f"{month_folder}Video Messages/",
-                    "Videos": f"{month_folder}Videos/",
-                    "Audios": f"{month_folder}Audios/",
-                    "GIFs": f"{month_folder}GIFs/",
-                    "Files": f"{month_folder}Files/"
-                }
-
-                for folder in message_folders.values():
-                    archive.writestr(folder, "")
-
-                for msg in saved_messages:
-                    await self.add_message_to_archive(msg, archive, message_folders)
-
             await message.client.send_file(
                 message.chat_id,
                 archive_path,
-                caption=self.strings["archive_created"].format(filename=os.path.basename(archive_path)),
+                caption=self.strings["archive_created"].format(
+                    filename=os.path.basename(archive_path)
+                ),
             )
-
         except Exception as e:
             await utils.answer(message, self.strings["error"].format(error=str(e)))
-
         finally:
-            if os.path.exists(archive_path):
-                os.remove(archive_path)
+            self.cleanup(archive_path)
 
-    async def add_message_to_archive(self, msg, archive, folders):
+    def create_archive(self, saved_messages):
+        current_month = datetime.now().strftime("%B %Y")
+        archive_path = "saved_messages.zip"
+
+        with zipfile.ZipFile(archive_path, "w") as archive:
+            self.initialize_archive_structure(archive, current_month)
+            for msg in saved_messages:
+                await self.add_message_to_archive(msg, archive, current_month)
+
+        return archive_path
+
+    def initialize_archive_structure(self, archive, current_month):
+        month_folder = f"{current_month}/"
+        archive.writestr(month_folder, "")
+        message_folders = {
+            "Text Messages": f"{month_folder}Text Messages/",
+            "Voice Messages": f"{month_folder}Voice Messages/",
+            "Video Messages": f"{month_folder}Video Messages/",
+            "Videos": f"{month_folder}Videos/",
+            "Audios": f"{month_folder}Audios/",
+            "GIFs": f"{month_folder}GIFs/",
+            "Files": f"{month_folder}Files/",
+        }
+
+        for folder in message_folders.values():
+            archive.writestr(folder, "")
+
+    async def add_message_to_archive(self, msg, archive, current_month):
         """Обрабатывает отдельное сообщение и добавляет его в архив."""
         if msg.message:
-            timestamp = datetime.fromtimestamp(msg.date.timestamp()).strftime("%Y%m%d_%H%M%S")
-            safe_name = f"message_{timestamp}.txt"
-            archive.writestr(os.path.join(folders["Text Messages"], safe_name), msg.message)
+            await self.add_text_message_to_archive(msg, archive, current_month)
 
         if msg.media:
-            media_file = await msg.client.download_media(msg.media)
-            if media_file:
-                mime_type = msg.media.document.mime_type if hasattr(msg.media, "document") else None
-                folder = folders["Files"]
+            await self.add_media_to_archive(msg, archive, current_month)
 
-                if mime_type:
-                    if mime_type.startswith("audio/"):
-                        folder = folders["Audios"]
-                    elif mime_type.startswith("video/"):
-                        folder = folders["Videos"]
-                    elif mime_type.startswith("image/gif"):
-                        folder = folders["GIFs"]
+    async def add_text_message_to_archive(self, msg, archive, current_month):
+        timestamp = datetime.fromtimestamp(msg.date.timestamp()).strftime(
+            "%Y%m%d_%H%M%S"
+        )
+        safe_name = f"message_{timestamp}.txt"
+        archive.writestr(
+            os.path.join(f"{current_month}/Text Messages/", safe_name), msg.message
+        )
 
-                archive.write(media_file, os.path.join(folder, os.path.basename(media_file)))
+    async def add_media_to_archive(self, msg, archive, current_month):
+        media_file = await msg.client.download_media(msg.media)
+        if media_file:
+            mime_type = (
+                msg.media.document.mime_type if hasattr(msg.media, "document") else None
+            )
+            folder = self.get_media_folder(mime_type, current_month)
+            archive.write(
+                media_file, os.path.join(folder, os.path.basename(media_file))
+            )
+
+    def get_media_folder(self, mime_type, current_month):
+        if mime_type:
+            if mime_type.startswith("audio/"):
+                return f"{current_month}/Audios/"
+            elif mime_type.startswith("video/"):
+                return f"{current_month}/Videos/"
+            elif mime_type.startswith("image/gif"):
+                return f"{current_month}/GIFs/"
+        return f"{current_month}/Files/"
+
+    def cleanup(self, archive_path):
+        if os.path.exists(archive_path):
+            os.remove(archive_path)
