@@ -61,17 +61,7 @@ class TempChatMod(loader.Module):
 
     def __init__(self):
         self.temp_chats = {}
-
-    def parse_time(self, time_str):
-        time_units = {'d': 86400, 'h': 3600, 'm': 60, 's': 1}
-        if not re.fullmatch(r'(\d+[dhms])+', time_str):
-            return None
-        seconds = 0
-        matches = re.findall(r'(\d+)([dhms])', time_str)
-        for amount, unit in matches:
-            seconds += int(amount) * time_units[unit]
-        return seconds if seconds > 0 else None
-
+        
     async def check_expired_chats(self):
         while True:
             now = dt.now().timestamp()
@@ -90,6 +80,7 @@ class TempChatMod(loader.Module):
             await asyncio.sleep(30)
 
     async def client_ready(self, client, db):
+        self.hmodslib = await self.import_lib('https://raw.githubusercontent.com/C0dwiz/H.Modules/refs/heads/main-fix/HModsLibrary.py')
         self.temp_chats = self.get('temp_chats', {})
         asyncio.create_task(self.check_expired_chats())
 
@@ -116,7 +107,7 @@ class TempChatMod(loader.Module):
 
         if not time_str:
             return await utils.answer(message, self.strings["wrongargs"])
-        seconds = self.parse_time(time_str)
+        seconds = self.hmodslib.parse_time(time_str)
         if not seconds:
             return await utils.answer(message, self.strings["invalidtime"])
 
