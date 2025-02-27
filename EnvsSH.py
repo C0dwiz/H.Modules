@@ -28,7 +28,6 @@
 # ---------------------------------------------------------------------------------
 
 import aiohttp
-import asyncio
 
 from os import remove as remove_file
 from .. import loader, utils  # pylint: disable=relative-beyond-top-level

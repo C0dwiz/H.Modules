@@ -27,8 +27,7 @@
 # requires: requests
 # ---------------------------------------------------------------------------------
 
-import logging
-import requests
+import aiohttp
 
 from .. import loader, utils
 

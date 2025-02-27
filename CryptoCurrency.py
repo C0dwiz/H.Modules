@@ -28,7 +28,6 @@
 
 import aiohttp
 
-from telethon import events
 from .. import loader, utils
 
 

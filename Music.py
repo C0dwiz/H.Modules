@@ -29,7 +29,11 @@
 
 import logging
 
-from telethon.errors.rpcerrorlist import BotMethodInvalidError, FloodWaitError, MessageNotModifiedError
+from telethon.errors.rpcerrorlist import (
+    BotMethodInvalidError,
+    FloodWaitError,
+    MessageNotModifiedError,
+)
 from telethon.tl.types import Message
 
 from .. import loader, utils
@@ -111,15 +115,19 @@ class MusicMod(loader.Module):
         await utils.answer(message, self.strings("yafind_searching", message))
 
         try:
-            results = await message.client.inline_query(self.murglar_bot, f"s:ynd {query}")
+            results = await message.client.inline_query(
+                self.murglar_bot, f"s:ynd {query}"
+            )
 
             if not results:
-                return await utils.answer(message, self.strings("yafind_not_found", message))
+                return await utils.answer(
+                    message, self.strings("yafind_not_found", message)
+                )
 
             await results[0].click(
                 entity=message.chat_id,
                 hide_via=True,
-                reply_to=message.reply_to_msg_id if message.reply_to_msg_id else None
+                reply_to=message.reply_to_msg_id if message.reply_to_msg_id else None,
             )
             await message.delete()
 
@@ -137,7 +145,9 @@ class MusicMod(loader.Module):
             music = await message.client.inline_query(self.vk_bot, query)
 
             if not music or len(music) <= 1:
-                return await utils.answer(message, self.strings("not_found", message).format(query))
+                return await utils.answer(
+                    message, self.strings("not_found", message).format(query)
+                )
 
             for i in range(1, len(music), 2):
                 try:
@@ -147,7 +157,9 @@ class MusicMod(loader.Module):
                             message.to_id,
                             result.audio,
                             caption=self.strings("found", message),
-                            reply_to=utils.get_topic(message) if message.reply_to_msg_id else None,
+                            reply_to=utils.get_topic(message)
+                            if message.reply_to_msg_id
+                            else None,
                         )
                         await message.delete()
                         return
@@ -156,7 +168,9 @@ class MusicMod(loader.Module):
                             message.to_id,
                             result.document,
                             caption=self.strings("found", message),
-                            reply_to=utils.get_topic(message) if message.reply_to_msg_id else None,
+                            reply_to=utils.get_topic(message)
+                            if message.reply_to_msg_id
+                            else None,
                         )
                         await message.delete()
                         return
@@ -171,14 +185,18 @@ class MusicMod(loader.Module):
                 except Exception as e:
                     logger.error(f"Send error: {e}")
 
-            await utils.answer(message, self.strings("not_found", message).format(query))
+            await utils.answer(
+                message, self.strings("not_found", message).format(query)
+            )
 
         except BotMethodInvalidError as e:
             logger.error(f"VK bot error: {e}")
             await utils.answer(message, self.strings("bot_error", message).format(e))
         except FloodWaitError as e:
             logger.warning(f"Flood wait: {e.seconds}s")
-            await utils.answer(message, self.strings("flood_wait", message).format(e.seconds))
+            await utils.answer(
+                message, self.strings("flood_wait", message).format(e.seconds)
+            )
         except Exception as e:
             logger.exception("VK search error:")
             await utils.answer(message, self.strings("error", message).format(e))
