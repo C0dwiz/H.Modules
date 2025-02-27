@@ -109,7 +109,7 @@ class TempChatMod(loader.Module):
 
         if not time_str:
             return await utils.answer(message, self.strings["wrongargs"])
-        seconds = self.hmodslib.parse_time(time_str)
+        seconds = await elf.hmodslib.parse_time(time_str)
         if not seconds:
             return await utils.answer(message, self.strings["invalidtime"])
 
