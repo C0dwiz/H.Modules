@@ -29,7 +29,7 @@
 import random
 
 from ..inline.types import InlineQuery
-from .. import loader, utils
+from .. import loader
 
 
 @loader.tds

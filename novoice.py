@@ -26,10 +26,13 @@
 # scope: NoVoice 0.0.1
 # ---------------------------------------------------------------------------------
 
+import logging
+
 from telethon.tl.custom import Message
 
 from .. import loader, utils
 
+logger = logging.INFO(__name__) 
 
 @loader.tds
 class NoVoiceMod(loader.Module):

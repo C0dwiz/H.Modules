@@ -26,10 +26,6 @@
 # scope: Api Search 0.0.1
 # ---------------------------------------------------------------------------------
 
-from urllib.parse import quote
-
-from ..inline.types import InlineCall, InlineQuery
-
 from .. import loader, utils
 
 

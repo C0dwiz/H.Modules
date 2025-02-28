@@ -29,7 +29,6 @@
 
 import os
 import subprocess
-import re
 import tempfile
 import time
 

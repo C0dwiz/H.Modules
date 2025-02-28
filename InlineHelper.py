@@ -153,7 +153,7 @@ class InlineHelperMod(loader.Module):
         en_doc="Execute the command in the terminal (it is better to prepare the command immediately and just paste it)",
     )
     async def terminal_inline_handler(self, _: InlineQuery):
-        text = query.args
+        text = _.args
 
         await asyncio.create_subprocess_shell(
             f"{text}",

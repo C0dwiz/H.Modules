@@ -27,32 +27,11 @@
 # scope: Meme 0.0.1
 # ---------------------------------------------------------------------------------
 
-import asyncio
-from urllib.parse import quote_plus
-from datetime import datetime
 from bs4 import BeautifulSoup
 import aiohttp
 import random
-import urllib.request
-import json
 
-from .. import loader, utils
-
-
-async def get_random_image():
-    random_site = random.randint(1, 3389)
-    url = f"https://www.memify.ru/memes/{random_site}"
-
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            content = await response.text()
-            soup = BeautifulSoup(content, "html.parser")
-            items = soup.find_all("div", {"class": "infinite-item card"})
-            random_item = random.choice(items)
-            second_a = random_item.find_all("a")[1]
-            img = second_a.get("href")
-
-    return img
+from .. import loader
 
 
 @loader.tds
@@ -72,12 +51,15 @@ class MemesMod(loader.Module):
         "dell": "❌ Закрыть",
     }
 
+    async def client_ready(self, client, db):
+        self.hmodslib = await self.import_lib('https://raw.githubusercontent.com/C0dwiz/H.Modules/refs/heads/main-fix/HModsLibrary.py')
+
     @loader.command(
         ru_doc="",
         en_doc="",
     )
     async def memescmd(self, message):
-        img = await get_random_image()
+        img = await self.hmodslib.get_random_image()
         await self.inline.form(
             text=self.strings("done"),
             photo=img,
@@ -100,7 +82,7 @@ class MemesMod(loader.Module):
         )
 
     async def ladno(self, call):
-        img = await get_random_image()
+        img = await self.hmodslib.get_random_image()
         await call.edit(
             text=self.strings("done"),
             photo=img,

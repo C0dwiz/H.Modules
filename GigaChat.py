@@ -26,8 +26,6 @@
 # scope: Api GigaChat 0.0.1
 # ---------------------------------------------------------------------------------
 
-from gigachat import GigaChat
-
 from .. import loader, utils
 
 
@@ -60,6 +58,11 @@ class GigaChatMod(loader.Module):
         "giga_model": "Список моделей GigaChat:\n{}",
     }
 
+    async def client_ready(self, client, db):
+        self.hmodslib = await self.import_lib(
+            "https://raw.githubusercontent.com/C0dwiz/H.Modules/refs/heads/main-fix/HModsLibrary.py"
+        )
+
     def __init__(self):
         self.config = loader.ModuleConfig(
             loader.ConfigValue(
@@ -89,7 +92,7 @@ class GigaChatMod(loader.Module):
             return await utils.answer(message, self.strings("query_missing"))
 
         try:
-            response = await self.get_giga_response(api_key, query)
+            response = await self.hmodslib.get_giga_response(api_key, query)
             if response:
                 await utils.answer(
                     message, self.strings("formatted_response").format(query, response)
@@ -100,8 +103,8 @@ class GigaChatMod(loader.Module):
             await utils.answer(message, self.strings("error_occurred").format(str(e)))
 
     @loader.command(
-        ru_doc="Получите исчерпывающий ответ на свой вопрос",
-        en_doc="Get GigaResponse to your question",
+        ru_doc="Получить список моделей",
+        en_doc="Get a list of models",
     )
     async def gigamodel(self, message):
         api_key = self.config["GIGACHAT_API_KEY"]
@@ -109,37 +112,10 @@ class GigaChatMod(loader.Module):
             return await utils.answer(message, self.strings("api_key_missing"))
 
         try:
-            response = await self.get_giga_models(api_key)
+            response = await self.hmodslib.get_giga_models(api_key)
             if response:
                 await utils.answer(message, self.strings("giga_model").format(response))
             else:
                 await utils.answer(message, self.strings("response_error"))
         except Exception as e:
             await utils.answer(message, self.strings("error_occurred").format(str(e)))
-
-    async def get_giga_response(self, api_key, query):
-        """Gets a response from GigaChat with the specified query."""
-        async with GigaChat(
-            credentials=api_key,
-            scope="GIGACHAT_API_PERS",
-            model=self.config["GIGACHAT_MODEL"],
-            verify_ssl_certs=False,
-        ) as giga:
-            response = giga.chat(query)
-            if response.choices:
-                return response.choices[0].message.content
-            return None
-
-    async def get_giga_models(self, api_key):
-        """Gets a response from GigaChat with the specified query."""
-        async with GigaChat(
-            credentials=api_key, scope="GIGACHAT_API_PERS", verify_ssl_certs=False
-        ) as giga:
-            response = giga.get_models()
-            if response:
-                return (
-                    [model.id_ for model in response.data]
-                    if hasattr(response, "data")
-                    else []
-                )
-            return None

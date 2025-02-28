@@ -42,27 +42,11 @@ import re
 import time
 import typing
 
-from telethon.tl.functions.channels import (
-    JoinChannelRequest,
-    EditAdminRequest,
-    EditBannedRequest,
-    GetFullChannelRequest,
-    GetParticipantRequest,
-    InviteToChannelRequest,
-)
-from telethon.tl.functions.messages import EditChatDefaultBannedRightsRequest
 from telethon.tl.types import (
     Channel,
-    ChannelParticipantCreator,
     Chat,
-    ChatAdminRights,
-    ChatBannedRights,
-    DocumentAttributeAnimated,
     Message,
-    MessageEntitySpoiler,
-    MessageMediaUnsupported,
     User,
-    UserStatusOnline,
 )
 
 from .. import loader, utils
@@ -212,8 +196,7 @@ class GlobalRestrict(loader.Module):
             ' href="{}">{}</a>...</b>'
         ),
         "in_m_chats": (
-            "<emoji document_id=5379568936218009290>👎</emoji> <b>Мут в {}"
-            " чат(-ах)</b>"
+            "<emoji document_id=5379568936218009290>👎</emoji> <b>Мут в {} чат(-ах)</b>"
         ),
         "unmute_in_n_chats": (
             "<emoji document_id=5461129450341014019>✋️</emoji> <b>Размут in {}"
@@ -339,8 +322,6 @@ class GlobalRestrict(loader.Module):
                 int(getattr(user, "id", user)),
             )
         except Exception:
-            logger.debug("Can't ban with bot", exc_info=True)
-
             await self._client.edit_permissions(
                 chat,
                 user,
@@ -373,8 +354,6 @@ class GlobalRestrict(loader.Module):
                 int(getattr(user, "id", user)),
             )
         except Exception:
-            logger.debug("Can't ban with bot", exc_info=True)
-
             await self._client.edit_permissions(
                 chat,
                 user,

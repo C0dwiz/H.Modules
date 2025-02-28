@@ -28,9 +28,7 @@
 # ---------------------------------------------------------------------------------
 
 import aiohttp
-import asyncio
 
-from os import remove as remove_file
 from .. import loader, utils  # pylint: disable=relative-beyond-top-level
 
 
@@ -55,13 +53,16 @@ class EnvsMod(loader.Module):
         "uploading": "⏳ <b>Загрузка {} ({}{})...</b>",
     }
 
+    async def client_ready(self, client, db):
+        self.hmodslib = await self.import_lib('https://raw.githubusercontent.com/C0dwiz/H.Modules/refs/heads/main-fix/HModsLibrary.py')
+
     async def envcmd(self, message):
         """Reupload to envs.sh."""
         reply = await message.get_reply_message()
         if not reply or not reply.media:
             return await utils.answer(message, self.strings["no_reply"])
 
-        size_len, size_unit = self.convert_size(reply.file.size)
+        size_len, size_unit = self.hmodslib.convert_size(reply.file.size)
         await utils.answer(
             message,
             self.strings["uploading"].format(reply.file.name, size_len, size_unit),
@@ -69,7 +70,7 @@ class EnvsMod(loader.Module):
 
         path = await self.client.download_media(reply)
         try:
-            uploaded_url = await self.upload_to_envs(path)
+            uploaded_url = await self.hmodslib.upload_to_envs(path)
         except aiohttp.ClientConnectionError:
             await utils.answer(message, self.strings["connection_error"])
         except aiohttp.ClientResponseError as e:
@@ -78,36 +79,3 @@ class EnvsMod(loader.Module):
             await utils.answer(
                 message, self.strings["success"].format(path, uploaded_url)
             )
-
-    @staticmethod
-    def convert_size(size):
-        """Convert file size to human-readable format."""
-        power = 2**10
-        n = 0
-        units = {0: "B", 1: "KB", 2: "MB", 3: "GB", 4: "TB"}
-        while size > power:
-            size /= power
-            n += 1
-        return round(size, 2), units[n]
-
-    async def upload_to_envs(self, path):
-        """Upload file to envs.sh and return the URL."""
-        url = "https://envs.sh"
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url, data={"file": open(path, "rb")}) as response:
-                if response.status != 200:
-                    remove_file(path)
-                    raise aiohttp.ClientResponseError(
-                        request_info=response.request_info,
-                        history=response.history,
-                        status=response.status,
-                        message=await response.text(),
-                        headers=response.headers,
-                    )
-                result = await response.text()
-                remove_file(path)
-                return result
-
-    def __del__(self):
-        """Handle any clean-up if necessary."""
-        pass

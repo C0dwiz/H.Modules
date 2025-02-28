@@ -28,7 +28,6 @@
 
 import asyncio
 
-from telethon import events
 from .. import loader, utils
 
 

@@ -27,8 +27,7 @@
 # requires: requests
 # ---------------------------------------------------------------------------------
 
-import logging
-import requests
+import aiohttp
 
 from .. import loader, utils
 
@@ -78,5 +77,5 @@ class AnimeQuotesMod(loader.Module):
                     )
                     await utils.answer(message, quote)
 
-        except aiohttp.ClientError as e:
+        except aiohttp.ClientError:
             await utils.answer(message, self.strings["error"])
