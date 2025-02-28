@@ -127,7 +127,7 @@ class Weather(loader.Module):
 
 <b>📊 Current conditions:</b>
 ├ 🌡 Temperature: <code>{temp}°C</code>
-├ 🌡 Feels like: <code>{feels_like}°C</code>
+├– <i>Feels like:</i> <code>{feels_like}°C</code>
 ├ 💧 Humidity: <code>{humidity}%</code>
 ├ 💨 Wind: <code>{wind_speed} km/h</code> {wind_direction}
 ├ 🌪 Pressure: <code>{pressure} mmHg</code>
@@ -159,7 +159,7 @@ class Weather(loader.Module):
 
 <b>📊 Текущие условия:</b>
 ├ 🌡 Температура: <code>{temp}°C</code>
-├ <i>Ощущается как:</i> <code>{feels_like}°C</code>
+├– <i>Ощущается как:</i> <code>{feels_like}°C</code>
 ├ 💧 Влажность: <code>{humidity}%</code>
 ├ 💨 Ветер: <code>{wind_speed} км/ч</code> {wind_direction}
 ├ 🌪 Давление: <code>{pressure} мм.рт.ст</code>
