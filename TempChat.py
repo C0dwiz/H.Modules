@@ -50,6 +50,8 @@ class TempChatMod(loader.Module):
         "invalidtime": "<emoji document_id=5980953710157632545>❌</emoji> <b>Invalid time format. Use combinations like 1h30m.</b>",
         "invitemsg": "<emoji document_id=5818967120213445821>🛡</emoji> You've been invited to a temporary private chat!\n\n<emoji document_id=5451646226975955576>⌛️</emoji> Auto-deletes in ",
         "joinlink": "🔗 Join link: ",
+        "chatcreated": "<emoji document_id=5980930633298350051>✅</emoji> The temporary chat has been successfully created!"
+
     }
 
     strings_ru = {

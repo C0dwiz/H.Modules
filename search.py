@@ -87,9 +87,7 @@ class Search(loader.Module):
         """Searches on a given search engine."""
         query = utils.get_args_raw(message)
         search_url = f"{base_url}{query}"
-        await utils.answer(
-            message, self.strings("search") + f": <a href={search_url}>link</a>"
-        )
+        await utils.answer(message, self.strings("search") + f": <a href={search_url}>link</a>")
 
     @loader.command(
         ru_doc="Поискать в Google инлайн",
