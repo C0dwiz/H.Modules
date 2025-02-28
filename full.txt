@@ -16,7 +16,6 @@ full
 GigaChat
 globalrestrict
 hikkahost
-HModsLibrary
 InlineButton
 InlineCoin
 InlineHelper
@@ -43,3 +42,4 @@ TikTokDownloader
 Video2GIF
 VirusTotal
 VoiceDL
+HAFK
