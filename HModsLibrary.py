@@ -37,6 +37,7 @@ import asyncio
 from bs4 import BeautifulSoup
 from gigachat import GigaChat
 from typing import Optional, Dict, Any
+from os import remove as remove_file
 
 from .. import loader, utils
 
