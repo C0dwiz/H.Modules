@@ -72,20 +72,20 @@ class ForecastDay:
 
 
 WEATHER_EMOJI: List[WeatherCondition] = [
-    WeatherCondition("clear", "☀️"),
-    WeatherCondition("sunny", "☀️"),
-    WeatherCondition("partly cloudy", "⛅️"),
-    WeatherCondition("cloudy", "☁️"),
-    WeatherCondition("overcast", "☁️"),
-    WeatherCondition("mist", "🌫"),
-    WeatherCondition("fog", "🌫"),
-    WeatherCondition("light rain", "🌦"),
-    WeatherCondition("rain", "🌧"),
-    WeatherCondition("heavy rain", "⛈"),
-    WeatherCondition("thunderstorm", "⛈"),
-    WeatherCondition("snow", "🌨"),
-    WeatherCondition("heavy snow", "❄️"),
-    WeatherCondition("sleet", "🌨"),
+    WeatherCondition("clear", "<emoji document_id=5402477260982731644>☀️</emoji>"),
+    WeatherCondition("sunny", "<emoji document_id=5402477260982731644>☀️</emoji>"),
+    WeatherCondition("partly cloudy", "<emoji document_id=5350424168615649565>⛅️</emoji>"),
+    WeatherCondition("cloudy", "☁️<emoji document_id=5208563370218762357>☁️</emoji>"),
+    WeatherCondition("overcast", "<emoji document_id=5208563370218762357>☁️</emoji>"),
+    WeatherCondition("mist", "<emoji document_id=5449510395574229527>😶‍🌫️</emoji>"),
+    WeatherCondition("fog", "<emoji document_id=5449510395574229527>😶‍🌫️</emoji>"),
+    WeatherCondition("light rain", "<emoji document_id=5283097055852503586>🌦</emoji>"),
+    WeatherCondition("rain", "<emoji document_id=5283243028905994049>🌧</emoji>"),
+    WeatherCondition("heavy rain", "<emoji document_id=5282939632416206153>⛈</emoji>"),
+    WeatherCondition("thunderstorm", "<emoji document_id=5282939632416206153>⛈</emoji>"),
+    WeatherCondition("snow", "<emoji document_id=5282833267551117457>🌨</emoji>"),
+    WeatherCondition("heavy snow", "<emoji document_id=5449449325434266744>❄️</emoji>"),
+    WeatherCondition("sleet", "<emoji document_id=5282833267551117457>🌨</emoji>"),
     WeatherCondition("wind", "💨"),
 ]
 
@@ -121,9 +121,9 @@ class Weather(loader.Module):
         "no_city": "🚫 <b>Please specify a city</b>",
         "invalid_city": "🚫 <b>City not found</b>",
         "loading": "🔄 <b>Fetching weather data for {}</b>...",
-        "error": "❌ <b>Error retrieving weather data</b>",
-        "default_city": "✅ Default city set to: <code>{city}</code>",
-        "weather_text": """<b>🌍 Weather: {location}</b> {emoji}
+        "error": "<emoji document_id=5980953710157632545>❌</emoji> <b>Error retrieving weather data</b>",
+        "default_city": "<emoji document_id=5980930633298350051>✅</emoji> Default city set to: <code>{city}</code>",
+        "weather_text": """<b>{emoji} Weather: {location}</b>
 
 <b>📊 Current conditions:</b>
 ├ 🌡 Temperature: <code>{temp}°C</code>
@@ -153,13 +153,13 @@ class Weather(loader.Module):
         "no_city": "🚫 <b>Пожалуйста, укажите город</b>",
         "invalid_city": "🚫 <b>Город не найден</b>",
         "loading": "🔄 <b>Получаю метеоданные для {}</b>...",
-        "default_city": "✅ Город по умолчанию установлен: <code>{city}</code>",
-        "error": "❌ <b>Ошибка при получении данных о погоде</b>",
-        "weather_text": """<b>🌍 Погода: {location}</b> {emoji}
+        "default_city": "<emoji document_id=5980930633298350051>✅</emoji> Город по умолчанию установлен: <code>{city}</code>",
+        "error": "<emoji document_id=5980953710157632545>❌</emoji> <b>Ошибка при получении данных о погоде</b>",
+        "weather_text": """<b>{emoji} Погода: {location}</b>
 
 <b>📊 Текущие условия:</b>
 ├ 🌡 Температура: <code>{temp}°C</code>
-├ 🌡 Ощущается как: <code>{feels_like}°C</code>
+├ <i>Ощущается как:</i> <code>{feels_like}°C</code>
 ├ 💧 Влажность: <code>{humidity}%</code>
 ├ 💨 Ветер: <code>{wind_speed} км/ч</code> {wind_direction}
 ├ 🌪 Давление: <code>{pressure} мм.рт.ст</code>
