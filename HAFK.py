@@ -90,7 +90,9 @@ class HAFK(loader.Module):
         self.global_afk_reason = self.db.get(__name__, "afk_reason", None)
         self.global_gone_time = self.db.get(__name__, "gone_afk", None)
 
-        logger.debug(f"Initial global AFK state: afk={self.global_afk}, reason={self.global_afk_reason}, gone_time={self.global_gone_time}")
+        logger.debug(
+            f"Initial global AFK state: afk={self.global_afk}, reason={self.global_afk_reason}, gone_time={self.global_gone_time}"
+        )
 
     @loader.command(
         ru_doc="[reason / none] – Установить режим AFK",
@@ -120,14 +122,18 @@ class HAFK(loader.Module):
 
         reason = utils.get_args_raw(message) or None
 
-        success = self._set_afk(True, reason=reason, chat_id=chat_id if not global_afk else None)
+        success = self._set_afk(
+            True, reason=reason, chat_id=chat_id if not global_afk else None
+        )
 
         if not success:
             await utils.answer(message, self.strings("afk_set_failed", message))
             return
 
         if reason:
-            await utils.answer(message, self.strings(afk_on_reason_string, message).format(reason))
+            await utils.answer(
+                message, self.strings(afk_on_reason_string, message).format(reason)
+            )
         else:
             await utils.answer(message, self.strings(afk_on_string, message))
 
@@ -157,12 +163,16 @@ class HAFK(loader.Module):
             return
 
         now = datetime.datetime.now().replace(microsecond=0)
-        total_gone_time = self._calculate_total_afk_time(now, chat_id=chat_id if not global_afk else None)
+        total_gone_time = self._calculate_total_afk_time(
+            now, chat_id=chat_id if not global_afk else None
+        )
 
         self._set_afk(False, chat_id=chat_id if not global_afk else None)
 
         await self.allmodules.log("unafk" if global_afk else "unafkhere")
-        await utils.answer(message, self.strings(afk_off_time_string, message).format(total_gone_time))
+        await utils.answer(
+            message, self.strings(afk_off_time_string, message).format(total_gone_time)
+        )
 
     async def watcher(self, message):
         if not isinstance(message, types.Message):
@@ -196,7 +206,9 @@ class HAFK(loader.Module):
 
         if afk_state:
             if gone_time is None:
-                logger.warning(f"No 'gone' time found in database for {ratelimit_key}. Cannot send AFK message.")
+                logger.warning(
+                    f"No 'gone' time found in database for {ratelimit_key}. Cannot send AFK message."
+                )
                 return
 
             if self._ratelimit(chat_id, ratelimit_key):
@@ -233,7 +245,9 @@ class HAFK(loader.Module):
             logger.exception(f"Error setting AFK status: {e}")
             return False
 
-    def _calculate_total_afk_time(self, now: datetime.datetime, chat_id: int = None) -> datetime.timedelta:
+    def _calculate_total_afk_time(
+        self, now: datetime.datetime, chat_id: int = None
+    ) -> datetime.timedelta:
         """Calculates the total time spent in AFK mode."""
         key_prefix = f"afk_here_{chat_id}" if chat_id else "afk"
         gone_time = self.db.get(__name__, f"gone_{key_prefix}")
@@ -268,7 +282,9 @@ class HAFK(loader.Module):
             return
 
         if gone_time is None:
-            logger.warning("No 'gone' time found in database.  Cannot calculate AFK duration.")
+            logger.warning(
+                "No 'gone' time found in database.  Cannot calculate AFK duration."
+            )
             return
 
         now = datetime.datetime.now().replace(microsecond=0)
@@ -282,7 +298,9 @@ class HAFK(loader.Module):
         time_string = str(diff)
 
         if reason:
-            ret = self.strings("afk_message_reason", message).format(reason, time_string)
+            ret = self.strings("afk_message_reason", message).format(
+                reason, time_string
+            )
         else:
             ret = self.strings("afk_message", message).format(time_string)
 

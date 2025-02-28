@@ -43,3 +43,4 @@ Video2GIF
 VirusTotal
 VoiceDL
 HAFK
+Weather
