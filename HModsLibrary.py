@@ -30,31 +30,30 @@ import logging
 import re
 import aiohttp
 import random
-import os
-import tempfile
 import asyncio
+import os
 
 from bs4 import BeautifulSoup
 from gigachat import GigaChat
 from typing import Optional, Dict, Any
-from os import remove as remove_file
-
 from .. import loader, utils
 
 logger = logging.getLogger(__name__)
-__version__ = (0, 0, 1)
+__version__ = (0, 0, 2)
+
 
 class HModsLib(loader.Library):
     """Library required for most H:Mods modules."""
+
     developer = "@hikka_mods"
     version = __version__
 
     async def parse_time(self, time_str):
-        time_units = {'d': 86400, 'h': 3600, 'm': 60, 's': 1}
-        if not re.fullmatch(r'(\d+[dhms])+', time_str):
+        time_units = {"d": 86400, "h": 3600, "m": 60, "s": 1}
+        if not re.fullmatch(r"(\d+[dhms])+", time_str):
             return None
         seconds = 0
-        matches = re.findall(r'(\d+)([dhms])', time_str)
+        matches = re.findall(r"(\d+)([dhms])", time_str)
         for amount, unit in matches:
             seconds += int(amount) * time_units[unit]
         return seconds if seconds > 0 else None
@@ -76,7 +75,7 @@ class HModsLib(loader.Library):
         async with aiohttp.ClientSession() as session:
             async with session.post(url, data={"file": open(path, "rb")}) as response:
                 if response.status != 200:
-                    remove_file(path)
+                    os.remove(path)
                     raise aiohttp.ClientResponseError(
                         request_info=response.request_info,
                         history=response.history,
@@ -85,8 +84,28 @@ class HModsLib(loader.Library):
                         headers=response.headers,
                     )
                 result = await response.text()
-                remove_file(path)
+
+                os.remove(path)
                 return result
+
+    async def get_creation_date(tg_id: int) -> str:
+        url = "https://restore-access.indream.app/regdate"
+        headers = {
+            "accept": "*/*",
+            "content-type": "application/x-www-form-urlencoded",
+            "user-agent": "Nicegram/92 CFNetwork/1390 Darwin/22.0.0",
+            "x-api-key": "e758fb28-79be-4d1c-af6b-066633ded128",
+            "accept-language": "en-US,en;q=0.9",
+        }
+        data = {"telegramId": tg_id}
+
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=headers, json=data) as response:
+                if response.status == 200:
+                    json_response = await response.json()
+                    return json_response["data"]["date"]
+                else:
+                    return "Ошибка получения данных"
 
     async def get_giga_response(self, api_key, query):
         """Gets a response from GigaChat with the specified query."""
@@ -237,7 +256,9 @@ class HModsLib(loader.Library):
                             analysis_response = await self.virustotal_request(
                                 session, analysis_url, headers
                             )
-                            logger.debug(f"Analysis response (attempt {attempt+1}): {analysis_response}")
+                            logger.debug(
+                                f"Analysis response (attempt {attempt + 1}): {analysis_response}"
+                            )
                             if (
                                 analysis_response
                                 and "data" in analysis_response

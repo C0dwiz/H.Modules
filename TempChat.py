@@ -26,12 +26,13 @@
 # scope: TempChat 0.0.1
 # ---------------------------------------------------------------------------------
 
-from .. import loader, utils
+import logging
+import asyncio
+
 from hikkatl import functions
 from datetime import datetime as dt
-import logging
-import re
-import asyncio
+
+from .. import loader, utils
 
 logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
@@ -48,7 +49,7 @@ class TempChatMod(loader.Module):
         "alreadychatting": "<emoji document_id=5980953710157632545>❌</emoji> <b>You already have an active conversation with this person.</b>",
         "invalidtime": "<emoji document_id=5980953710157632545>❌</emoji> <b>Invalid time format. Use combinations like 1h30m.</b>",
         "invitemsg": "<emoji document_id=5818967120213445821>🛡</emoji> You've been invited to a temporary private chat!\n\n<emoji document_id=5451646226975955576>⌛️</emoji> Auto-deletes in ",
-        "joinlink": "🔗 Join link: "
+        "joinlink": "🔗 Join link: ",
     }
 
     strings_ru = {
@@ -58,32 +59,41 @@ class TempChatMod(loader.Module):
         "invalidtime": "<emoji document_id=5980953710157632545>❌</emoji> <b>Неверный формат времени. Убедитесь, что вы вводите время в формате 1h, 2h30m.</b>",
         "invitemsg": "<emoji document_id=5818967120213445821>🛡</emoji> Вы были приглашены во временный приватный чат!\n\n<emoji document_id=5451646226975955576>⌛️</emoji> Авто-удаление через ",
         "joinlink": "🔗 Ссылка: ",
-        "chatcreated": "<emoji document_id=5980930633298350051>✅</emoji> Временный чат успешно создан!"
+        "chatcreated": "<emoji document_id=5980930633298350051>✅</emoji> Временный чат успешно создан!",
     }
 
     def __init__(self):
         self.temp_chats = {}
-        
+
     async def check_expired_chats(self):
         while True:
             now = dt.now().timestamp()
             for chat_id in list(self.temp_chats.keys()):
                 if self.temp_chats[chat_id][1] <= now:
                     try:
-                        await self.client(functions.channels.DeleteChannelRequest(chat_id))
+                        await self.client(
+                            functions.channels.DeleteChannelRequest(chat_id)
+                        )
                         del self.temp_chats[chat_id]
-                        self.set('temp_chats', self.temp_chats)
+                        self.set("temp_chats", self.temp_chats)
                     except Exception as e:
                         logger.error(f"Error deleting chat {chat_id}: {e}")
-                        try: self.client(functions.channels.GetFullChannelRequest(channel=chat_id))
+                        try:
+                            self.client(
+                                functions.channels.GetFullChannelRequest(
+                                    channel=chat_id
+                                )
+                            )
                         except Exception:
                             del self.temp_chats[chat_id]
-                            self.set('temp_chats', self.temp_chats)
+                            self.set("temp_chats", self.temp_chats)
             await asyncio.sleep(30)
 
     async def client_ready(self, client, db):
-        self.hmodslib = await self.import_lib('https://raw.githubusercontent.com/C0dwiz/H.Modules/refs/heads/main-fix/HModsLibrary.py')
-        self.temp_chats = self.get('temp_chats', {})
+        self.hmodslib = await self.import_lib(
+            "https://raw.githubusercontent.com/C0dwiz/H.Modules/refs/heads/main-fix/HModsLibrary.py"
+        )
+        self.temp_chats = self.get("temp_chats", {})
         asyncio.create_task(self.check_expired_chats())
 
     @loader.command(
@@ -98,7 +108,7 @@ class TempChatMod(loader.Module):
             user = await self.client.get_entity(reply.sender_id)
             time_str = args.strip() if args else None
         else:
-            parts = args.split(',', 1) if ',' in args else args.rsplit(' ', 1)
+            parts = args.split(",", 1) if "," in args else args.rsplit(" ", 1)
             if len(parts) != 2:
                 return await utils.answer(message, self.strings["wrongargs"])
             user_str, time_str = parts[0].strip(), parts[1].strip()
@@ -117,32 +127,33 @@ class TempChatMod(loader.Module):
             return await utils.answer(message, self.strings["alreadychatting"])
 
         try:
-            created = await self.client(functions.channels.CreateChannelRequest(
-                title=f'TempChat #{user.id}',
-                about=f'Temporary private chat with {user.id} | Expires after: {time_str}',
-                megagroup=True
-            ))
+            created = await self.client(
+                functions.channels.CreateChannelRequest(
+                    title=f"TempChat #{user.id}",
+                    about=f"Temporary private chat with {user.id} | Expires after: {time_str}",
+                    megagroup=True,
+                )
+            )
             chat_id = created.chats[0].id
             expires_at = dt.now().timestamp() + seconds
 
-            await self.client(functions.messages.ToggleNoForwardsRequest(
-                peer=chat_id,
-                enabled=True
-            ))
+            await self.client(
+                functions.messages.ToggleNoForwardsRequest(peer=chat_id, enabled=True)
+            )
 
             self.temp_chats[chat_id] = (user.id, expires_at)
-            self.set('temp_chats', self.temp_chats)
+            self.set("temp_chats", self.temp_chats)
 
-            invite = await self.client(functions.messages.ExportChatInviteRequest(
-                peer=chat_id,
-                usage_limit=1
-            ))
-            invite_message = self.strings["invitemsg"] + time_str + f"\n{self.strings['joinlink']} {invite.link}"
-            await self.client.send_message(
-                user.id,
-                invite_message
+            invite = await self.client(
+                functions.messages.ExportChatInviteRequest(peer=chat_id, usage_limit=1)
             )
-            await utils.answer(message, self.strings['chatcreated'])
+            invite_message = (
+                self.strings["invitemsg"]
+                + time_str
+                + f"\n{self.strings['joinlink']} {invite.link}"
+            )
+            await self.client.send_message(user.id, invite_message)
+            await utils.answer(message, self.strings["chatcreated"])
 
         except Exception as e:
             logger.error(f"Error creating temp chat: {e}")

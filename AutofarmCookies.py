@@ -104,7 +104,7 @@ class AutofarmCookiesMod(loader.Module):
         await message.edit(self.strings["farm"].replace("%coins%", str(coins)))
 
     async def watcher(self, event):
-        if not isinstance(event, Message):
+        if not isinstance(event, Message):  # noqa: F821
             return
         chat = utils.get_chat_id(event)
         if chat != self.cookies:

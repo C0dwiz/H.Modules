@@ -26,10 +26,6 @@
 # scope: Api Search 0.0.1
 # ---------------------------------------------------------------------------------
 
-from urllib.parse import quote
-
-from ..inline.types import InlineCall, InlineQuery
-
 from .. import loader, utils
 
 
@@ -39,14 +35,14 @@ class Search(loader.Module):
 
     strings = {
         "name": "Search",
-        "search": "<emoji document_id=5188311512791393083>🌎</emoji><b> I searched for information for you</b> ",
+        "search": "<emoji document_id=5188311512791393083>🌎</emoji><b> I searched for information for you</b>",
         "isearch": "🔎<b> I searched for information for you</b> ",
         "link": "🗂️ Link to your request",
         "close": "❌ Close",
     }
 
     strings_ru = {
-        "search": "<emoji document_id=5188311512791393083>🌎</emoji><b> Я поискал информацию за тебя</b> ",
+        "search": "<emoji document_id=5188311512791393083>🌎</emoji><b> Я поискал информацию за тебя</b>",
         "isearch": "🔎<b> Я поискал информацию за тебя</b> ",
         "link": "🗂️ Ссылка на ваш запрос",
         "close": "❌ Закрыть",
@@ -57,41 +53,43 @@ class Search(loader.Module):
         en_doc="Search on Google",
     )
     async def google(self, message):
-        await search_engine(self, message, "https://google.com/search?q=")
+        await self.search_engine(message, "https://google.com/search?q=")
 
     @loader.command(
         ru_doc="Поискать в Yandex",
         en_doc="Search on Yandex",
     )
     async def yandex(self, message):
-        await search_engine(self, message, "https://yandex.ru/?q=")
+        await self.search_engine(message, "https://yandex.ru/?q=")
 
     @loader.command(
         ru_doc="Поискать в Duckduckgo",
         en_doc="Search on Duckduckgo",
     )
     async def duckduckgo(self, message):
-        await search_engine(self, message, "https://duckduckgo.com/?q=")
+        await self.search_engine(message, "https://duckduckgo.com/?q=")
 
     @loader.command(
         ru_doc="Поискать в Bing",
         en_doc="Search on Bing",
     )
     async def bing(self, message):
-        await search_engine(self, message, "https://bing.com/?q=")
+        await self.search_engine(message, "https://bing.com/?q=")
 
     @loader.command(
         ru_doc="Поискать в You",
         en_doc="Search on You",
     )
     async def you(self, message):
-        await search_engine(self, message, "https://you.com/?q=")
+        await self.search_engine(message, "https://you.com/?q=")
 
     async def search_engine(self, message, base_url: str) -> None:
         """Searches on a given search engine."""
         query = utils.get_args_raw(message)
         search_url = f"{base_url}{query}"
-        await utils.answer(message, self.strings("search") + f"Ссылка")
+        await utils.answer(
+            message, self.strings("search") + f": <a href={search_url}>link</a>"
+        )
 
     @loader.command(
         ru_doc="Поискать в Google инлайн",

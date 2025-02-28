@@ -27,12 +27,8 @@
 # ---------------------------------------------------------------------------------
 
 import os
-import aiohttp
 import tempfile
-import asyncio
 import logging
-
-from typing import Optional, Dict, Any
 
 from .. import loader, utils
 
@@ -56,7 +52,7 @@ class VirusTotalMod(loader.Module):
         "config": "Need a token with www.virustotal.com/gui/my-apikey",
         "scanning": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Waiting for scan results...</b>",
         "getting_upload_url": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Getting upload URL...</b>",
-        "analysis_failed": "<emoji document_id=5463193238393274687>⚠️</emoji> Analysis failed after multiple retries."
+        "analysis_failed": "<emoji document_id=5463193238393274687>⚠️</emoji> Analysis failed after multiple retries.",
     }
 
     strings_ru = {
@@ -71,7 +67,7 @@ class VirusTotalMod(loader.Module):
         "config": "Need a token with www.virustotal.com/gui/my-apikey",
         "scanning": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Ожидание результатов сканирования...</b>",
         "getting_upload_url": "<emoji document_id=5325792861885570739>🫥</emoji>  <b>Получение URL для загрузки...</b>",
-        "analysis_failed": "<emoji document_id=5463193238393274687>⚠️</emoji> Анализ не удался после нескольких попыток."
+        "analysis_failed": "<emoji document_id=5463193238393274687>⚠️</emoji> Анализ не удался после нескольких попыток.",
     }
 
     def __init__(self):
@@ -85,14 +81,15 @@ class VirusTotalMod(loader.Module):
         )
 
     async def client_ready(self, client, db):
-        self.hmodslib = await self.import_lib('https://raw.githubusercontent.com/C0dwiz/H.Modules/refs/heads/main-fix/HModsLibrary.py')
+        self.hmodslib = await self.import_lib(
+            "https://raw.githubusercontent.com/C0dwiz/H.Modules/refs/heads/main-fix/HModsLibrary.py"
+        )
 
     @loader.command(
         ru_doc="<ответ на файл> - Проверяет файлы на наличие вирусов с использованием VirusTotal",
         en_doc="<file response> - Checks files for viruses using VirusTotal",
     )
     async def vt(self, message):
-
         if not message.is_reply:
             await utils.answer(message, self.strings("no_file"))
             return
@@ -120,9 +117,7 @@ class VirusTotalMod(loader.Module):
                 await reply.download_media(file_path)
 
                 file_size = os.path.getsize(file_path)
-                is_large_file = (
-                    file_size > 32 * 1024 * 1024
-                )
+                is_large_file = file_size > 32 * 1024 * 1024
 
                 if is_large_file:
                     await utils.answer(message, self.strings("getting_upload_url"))
@@ -133,7 +128,9 @@ class VirusTotalMod(loader.Module):
                 )
 
                 if analysis_results:
-                    formatted_results = self.hmodslib.format_analysis_results(analysis_results)
+                    formatted_results = self.hmodslib.format_analysis_results(
+                        analysis_results
+                    )
                     try:
                         await self.inline.form(
                             text=formatted_results["text"],
@@ -149,7 +146,9 @@ class VirusTotalMod(loader.Module):
                         logger.error(f"Error displaying inline results: {e}")
                         await utils.answer(
                             message,
-                            self.strings("error_report").format(formatted_results["url"]),
+                            self.strings("error_report").format(
+                                formatted_results["url"]
+                            ),
                         )
 
                 else:
@@ -159,4 +158,4 @@ class VirusTotalMod(loader.Module):
             logger.exception("An error occurred during the VT scan process.")
             await utils.answer(
                 message, self.strings("error") + f"\n\n{type(e).__name__}: {str(e)}"
-                )
+            )

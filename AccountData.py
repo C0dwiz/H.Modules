@@ -24,31 +24,9 @@
 # meta developer: @hikka_mods
 # scope: Api AccountData
 # scope: Api AccountData 0.0.1
-# requires: aiohttp ---------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------
 
-import aiohttp
 from .. import loader, utils
-
-
-async def get_creation_date(tg_id: int) -> str:
-    url = "https://restore-access.indream.app/regdate"
-    headers = {
-        "accept": "*/*",
-        "content-type": "application/x-www-form-urlencoded",
-        "user-agent": "Nicegram/92 CFNetwork/1390 Darwin/22.0.0",
-        "x-api-key": "e758fb28-79be-4d1c-af6b-066633ded128",
-        "accept-language": "en-US,en;q=0.9",
-    }
-    data = {"telegramId": tg_id}
-
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, headers=headers, json=data) as response:
-            if response.status == 200:
-                json_response = await response.json()
-                return json_response["data"]["date"]
-            else:
-                return "Ошибка получения данных"
-
 
 @loader.tds
 class AccountData(loader.Module):
@@ -67,13 +45,18 @@ class AccountData(loader.Module):
         "no_reply": "<emoji document_id=6030512294109122096>💬</emoji> Вы не ответили на сообщение пользователя",
     }
 
+    async def client_ready(self, client, db):
+        self.hmodslib = await self.import_lib(
+            "https://raw.githubusercontent.com/C0dwiz/H.Modules/refs/heads/main-fix/HModsLibrary.py"
+        )
+
     @loader.command(
         ru_doc="Узнать примерную дату регистрации аккаунта телеграмм",
         en_doc="Find out the approximate date of registration of the telegram account",
     )
     async def accdata(self, message):
         if reply := await message.get_reply_message():
-            data = await get_creation_date(reply.from_id)
+            data = await self.hmodslib.get_creation_date(reply.from_id)
             await utils.answer(
                 message,
                 f"{self.strings('date_text').format(data=data)}\n\n{self.strings('date_text_ps')}",

@@ -196,8 +196,7 @@ class GlobalRestrict(loader.Module):
             ' href="{}">{}</a>...</b>'
         ),
         "in_m_chats": (
-            "<emoji document_id=5379568936218009290>👎</emoji> <b>Мут в {}"
-            " чат(-ах)</b>"
+            "<emoji document_id=5379568936218009290>👎</emoji> <b>Мут в {} чат(-ах)</b>"
         ),
         "unmute_in_n_chats": (
             "<emoji document_id=5461129450341014019>✋️</emoji> <b>Размут in {}"
@@ -323,7 +322,6 @@ class GlobalRestrict(loader.Module):
                 int(getattr(user, "id", user)),
             )
         except Exception:
-
             await self._client.edit_permissions(
                 chat,
                 user,
@@ -356,7 +354,6 @@ class GlobalRestrict(loader.Module):
                 int(getattr(user, "id", user)),
             )
         except Exception:
-
             await self._client.edit_permissions(
                 chat,
                 user,

@@ -19,12 +19,10 @@
 # ---------------------------------------------------------------------------------
 # Name: FakeWallet
 # Description: Fun joke - fake crypto wallet. You can change cryptocurrency values ​​using .cfg FakeWallet.
-# Author: @nervousmods
-# Commands:
-# .fwallet | .fwinfo
+# Author: @hikka_mods
 # ---------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------
-# meta developer: @hikka_mods, @nervousmods
+# meta developer: @hikka_mods
 # scope: hikka_only
 # scope: hikka_min 1.4.2
 # -----------------------------------------------------------------------------------

@@ -26,8 +26,6 @@
 # scope: Api GigaChat 0.0.1
 # ---------------------------------------------------------------------------------
 
-from gigachat import GigaChat
-
 from .. import loader, utils
 
 
@@ -61,7 +59,9 @@ class GigaChatMod(loader.Module):
     }
 
     async def client_ready(self, client, db):
-        self.hmodslib = await self.import_lib('https://raw.githubusercontent.com/C0dwiz/H.Modules/refs/heads/main-fix/HModsLibrary.py')
+        self.hmodslib = await self.import_lib(
+            "https://raw.githubusercontent.com/C0dwiz/H.Modules/refs/heads/main-fix/HModsLibrary.py"
+        )
 
     def __init__(self):
         self.config = loader.ModuleConfig(
