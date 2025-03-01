@@ -8,7 +8,7 @@
 
 # 2. Redistribution of the Software, in original or modified form, is strictly prohibited without the explicit written permission of the author.
 
-# 3. The Software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. In no event shall the author or copyright holder be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the Software or the use or other dealings in the Software.
+# 3. The Software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. In no event shall the author or copyright holder be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of or in connection with the Software or the use or other dealings in the Software.
 
 # 4. Any use of the Software must include the above copyright notice and this permission notice in all copies or substantial portions of the Software.
 
@@ -44,7 +44,6 @@ class HAFK(loader.Module):
         "not_afk_here": "<emoji document_id=5330365133745038003>😐</emoji> <b>AFK mode is already off in this chat.</b>",
         "afk_message": "<emoji document_id=5330130448142049118>🫤</emoji> <b>I'm currently not accepting messages!</b>\n<b>Reason:</b> <i>{}</i>\n\n<i>Inactive mode has been on for:</i> {}",
         "afk_message_reason": "<emoji document_id=5330130448142049118>🫤</emoji> <b>I'm currently not accepting messages!</b>\n<b>Reason:</b> <i>{}</i>\n\n<i>Inactive mode has been on for:</i> {}",
-        "ratelimit": "<b>Please wait a bit before using this command again.</b>",
         "afk_set_failed": "<b>Failed to set AFK status. Check logs.</b>",
         "added_excluded_chat": "<b>Chat {} added to excluded chats.</b>",
         "removed_excluded_chat": "<b>Chat {} removed from excluded chats.</b>",
@@ -69,7 +68,6 @@ class HAFK(loader.Module):
         "not_afk_here": "<emoji document_id=5330365133745038003>😐</emoji> <b>AFK-режим уже отключен в этом чате.</b>",
         "afk_message": "<emoji document_id=5330130448142049118>🫤</emoji> <b>На данный момент я не принимаю сообщения!</b>\n<b>Причина:</b> <i>{}</i>\n\n<i>С момента включения режима неактивности:</i> {}",
         "afk_message_reason": "<emoji document_id=5330130448142049118>🫤</emoji> <b>На данный момент я не принимаю сообщения!</b>\n<b>Причина:</b> <i>{}</i>\n\n<i>С момента включения режима неактивности:</i> {}",
-        "ratelimit": "<b>Пожалуйста, подождите немного перед повторным использованием этой команды.</b>",
         "afk_set_failed": "<b>Не удалось установить AFK-статус. Проверьте логи.</b>",
         "added_excluded_chat": "<b>Чат {} добавлен в список исключений.</b>",
         "removed_excluded_chat": "<b>Чат {} удален из списка исключений.</b>",
@@ -203,22 +201,14 @@ class HAFK(loader.Module):
         if self._is_afk_enabled(chat_id, False):
             reason = self.db.get(__name__, f"afk_here_{chat_id}_reason", None)
             gone_time = self.db.get(__name__, f"gone_afk_here_{chat_id}", None)
-            ratelimit_key = f"ratelimit_here_{chat_id}"
         elif self.global_afk:
             reason = self.global_afk_reason
             gone_time = self.global_gone_time
-            ratelimit_key = "ratelimit"
         else:
             return
 
         if gone_time is None:
-            logger.warning(
-                f"No 'gone' time found for {ratelimit_key}. Cannot send AFK."
-            )
-            return
-
-        if not self._ratelimit(chat_id, ratelimit_key):
-            await utils.answer(message, self.strings("ratelimit", message))
+            logger.warning(f"No 'gone' time found for chat {chat_id}. Cannot send AFK.")
             return
 
         afk_message = await self._send_afk_message(message, reason, gone_time)
@@ -262,16 +252,6 @@ class HAFK(loader.Module):
         except Exception as e:
             logger.error(f"Error calculating AFK time: {e}")
             return datetime.timedelta(seconds=0)
-
-    def _ratelimit(self, chat_id: int, key: str) -> bool:
-        now = time.time()
-        last_sent = self._ratelimit_cache.get((chat_id, key), 0)
-
-        if now - last_sent < self.DEFAULT_AFK_TIMEOUT:
-            return False
-
-        self._ratelimit_cache[(chat_id, key)] = now
-        return True
 
     async def _send_afk_message(self, message, reason, gone_time):
         user = await utils.get_user(message)
