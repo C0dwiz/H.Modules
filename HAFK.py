@@ -8,11 +8,23 @@
 
 # 2. Redistribution of the Software, in original or modified form, is strictly prohibited without the explicit written permission of the author.
 
-# 3. The Software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. In no event shall the author or copyright holder be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of or in connection with the Software or the use or other dealings in the Software.
+# 3. The Software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. In no event shall the author or copyright holder be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the Software or the use or other dealings in the Software.
 
 # 4. Any use of the Software must include the above copyright notice and this permission notice in all copies or substantial portions of the Software.
 
 # 5. By using the Software, you agree to be bound by the terms and conditions of this license.
+
+# For any inquiries or requests for permissions, please contact codwiz@yandex.ru.
+
+# ---------------------------------------------------------------------------------
+# Name: HAFK
+# Description: Your personal assistant while you are in AFK mode
+# Author: @hikka_mods
+# ---------------------------------------------------------------------------------
+# meta developer: @hikka_mods
+# scope: HAFK
+# scope: HAFK 0.0.1
+# ---------------------------------------------------------------------------------
 
 import datetime
 import logging
