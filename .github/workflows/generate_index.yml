@@ -27,13 +27,20 @@ jobs:
         run: |
           cat <<EOF > index.html
           <!DOCTYPE html>
-          <html>
-          <head><title>My Python Modules</title></head>
+          <html lang="en">
+          <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>H:Mods</title>
+          <link href="https://assets.archquise.ru/files/8Vk.css" rel="stylesheet" />
+          </head>
           <body>
-          <h1>My Python Modules</h1>
-          <ul>
-          $(for file in *.py; do echo "  <li><a href=\"$file\">$file</a></li>"; done)
+          <div class="container">
+          <h1>H:Mods modules</h1>
+          <ul class="module-list">
+          $(for file in *.py; do echo " <li class="module-item"><a href=\"$file\" class="module-link">$file</a></li>"; done)
           </ul>
+          </div>
           </body>
           </html>
           EOF
