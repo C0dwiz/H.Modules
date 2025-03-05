@@ -1,39 +1,91 @@
-<div align='center'>
-  <img src="https://github.com/Codwizer/ReModules/blob/main/assets/Vector.png" alt="hikka_mods">
+<div align="center">
+  <img src="https://github.com/Codwizer/ReModules/blob/main/assets/Vector.png" alt="hikka_mods" width="600">
 </div>
 
-## ❔ Information repository
+<h1 align="center">H:Mods - Hikka Modules</h1>
 
-<i>Modules for [Hikka](https://github.com/hikariatama/Hikka)</i>
+<p align="center">
+  Enhance your <a href="https://github.com/hikariatama/Hikka">Hikka</a> experience with a curated collection of community modules.
+</p>
 
-## 💬 Telegram
---> [Channel](https://t.me/hikka_mods)
+<p align="center">
+  <a href="https://t.me/hikka_mods">
+    <img src="https://img.shields.io/badge/Join%20the-Telegram%20Channel-blue?style=flat-square&logo=telegram" alt="Telegram Channel">
+  </a>
+</p>
 
-## 🆕 Instruction manuals
+---
 
-<pre><code>.dlm https://raw.githubusercontent.com/C0dwiz/H.Modules/main/{name_modules}.py</code></pre>
-<hr>
+## ✨ Installation Guide
 
-### Installing they repository
-> Install the repository
-<pre><code>.addrepo https://github.com/C0dwiz/H.Modules/raw/main</code></pre>
-> Installing the module
-<pre><code>.dlm {name_modules}</code></pre>
+### 1. Direct Installation
 
-## 📑 License
+To install a module directly from the repository, use the following command:
 
-> <i>All files of this repository are under <b>Proprietary License.</b></i><br>
-> <b>Permission is hereby granted to any person obtaining a copy of this software and associated documentation files (the "Software"), to use the Software for personal and non-commercial purposes, subject to the following conditions:</b>
 
-1. The Software may not be modified, altered, or otherwise changed in any way without the explicit written permission of the author.
-2. Redistribution of the Software, in original or modified form, is strictly prohibited without the explicit written permission of the author.
-3. The Software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. In no event shall the author or copyright holder be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the Software or the use or other dealings in the Software.
-4. Any use of the Software must include the above copyright notice and this permission notice in all copies or substantial portions of the Software.
-5. By using the Software, you agree to be bound by the terms and conditions of this license.
+```bash
+.dlm https://raw.githubusercontent.com/C0dwiz/H.Modules/main/<module_name>.py
+```
+**Example:** To install example_module.py, use:
 
-For any inquiries or requests for permissions, please contact codwiz@yandex.ru.
 
-<i>Example:</i><br>
-<b>For inquiries or requests for permissions, please contact example@example.com</b>
+```bash
+.dlm https://raw.githubusercontent.com/C0dwiz/H.Modules/main/example_module.py
+```
+### 2. Repository Installation (Recommended)
 
-<img src="https://raw.githubusercontent.com/trinib/trinib/82213791fa9ff58d3ca768ddd6de2489ec23ffca/images/footer.svg" width="100%">
+For easier module management and updates, install the entire repository.
+
+**Step 1: Add the Repository**
+
+
+```bash
+.addrepo https://github.com/C0dwiz/H.Modules/raw/main
+```
+
+**Step 2: Install Modules from the Repository**
+
+```bash
+.dlm <module_name>
+```
+**Example:** After adding the repository, to install example_module, use:
+
+```bash
+.dlm example_module
+```
+---
+
+## 📜 License
+
+This project is licensed under a **Proprietary License**. By using this software, you agree to the terms and conditions outlined below.
+
+> **You are granted permission to use the Software for personal and non-commercial purposes, subject to the following conditions:**
+
+1.  Modification or alteration of the Software is strictly prohibited without explicit written permission from the author.
+2.  Redistribution of the Software, in original or modified form, is strictly prohibited without explicit written permission from the author.
+3.  The Software is provided "as is", without any warranty, express or implied.
+4.  The copyright notice and this permission notice must be included in all copies or substantial portions of the Software.
+5.  By using the Software, you agree to be bound by the terms and conditions of this license.
+
+**Contact:** For any inquiries or requests for permissions, please contact codwiz@yandex.ru.
+
+<details>
+  <summary>Show Full License Details</summary>
+  > <i>All files of this repository are under <b>Proprietary License.</b></i><br>
+  > <b>Permission is hereby granted to any person obtaining a copy of this software and associated documentation files (the "Software"), to use the Software for personal and non-commercial purposes, subject to the following conditions:</b>
+
+  1. The Software may not be modified, altered, or otherwise changed in any way without the explicit written permission of the author.
+  2. Redistribution of the Software, in original or modified form, is strictly prohibited without the explicit written permission of the author.
+  3. The Software is provided "as is", without warranty of any kind, express or implied.
+  4. The copyright notice and this permission notice must be included in all copies or substantial portions of the Software.
+  5. By using the Software, you agree to be bound by the terms and conditions of this license.
+
+  For any inquiries or requests for permissions, please contact codwiz@yandex.ru.
+</details>
+
+---
+
+<p align="center">
+    <img src="https://raw.githubusercontent.com/trinib/trinib/82213791fa9ff58d3ca768ddd6de2489ec23ffca/images/footer.svg" width="100%">
+</p>
+
