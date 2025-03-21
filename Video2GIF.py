@@ -29,6 +29,7 @@
 
 import os
 import subprocess
+
 from .. import loader, utils
 
 
@@ -44,7 +45,7 @@ class Video2GIF(loader.Module):
         "loading": "⏳ Conversion is underway",
     }
 
-    strings = {
+    strings_ru = {
         "conversion_success": "🎉 Преобразование завершено!",
         "conversion_error": "❌ Произошла ошибка при преобразовании видео в GIF.",
         "not_video": "⚠️ Пожалуйста, ответьте на сообщение с видео или отправьте видео одним сообщением.",
