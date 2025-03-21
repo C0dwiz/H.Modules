@@ -33,7 +33,7 @@ from .. import loader, utils
 
 
 @loader.tds
-class Video2GIFModule(loader.Module):
+class Video2GIF(loader.Module):
     """Converts video to GIF"""
 
     strings = {
