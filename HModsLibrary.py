@@ -88,7 +88,7 @@ class HModsLib(loader.Library):
                 os.remove(path)
                 return result
 
-    async def get_creation_date(tg_id: int) -> str:
+    async def get_creation_date(self, tg_id: int) -> str:
         url = "https://restore-access.indream.app/regdate"
         headers = {
             "accept": "*/*",
