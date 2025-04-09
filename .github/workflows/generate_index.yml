@@ -32,7 +32,7 @@ jobs:
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>H:Mods</title>
-          <link href="https://assets.archquise.ru/files/8Vk.css" rel="stylesheet" />
+          <link href="https://raw.githubusercontent.com/C0dwiz/H.Modules/refs/heads/assets/style.css" rel="stylesheet" />
           </head>
           <body>
           <div class="container">
