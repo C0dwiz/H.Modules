@@ -60,7 +60,7 @@ class AnimeQuotesMod(loader.Module):
         en_doc="Get a random quote from the anime",
     )
     async def quote(self, message):
-        url = "https://animechan.io/api/v1/quotes/random"
+        url = "https://api.animechan.io/v1/quotes/random"
 
         try:
             async with aiohttp.ClientSession() as session:
