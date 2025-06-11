@@ -15,8 +15,7 @@ __version__ = (13, 0, 3)
 
 # scope: disable_onload_docs
 # scope: inline
-# scope: hikka_only
-# scope: hikka_min 1.3.0
+# scope: hikka_min 1.7.0
 # requires: aiohttp websockets
 
 import abc
